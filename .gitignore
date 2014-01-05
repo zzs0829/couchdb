@@ -140,3 +140,8 @@ support/rebar/inttest/rt.work
 rt.work
 rebar
 support/rebar/.test
+
+# couch_collate
+src/couch_collate/ebin
+src/couch_collate/priv
+rc/couch_collate/c_src/*.o
