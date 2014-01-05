@@ -133,3 +133,10 @@ tmp
 utils/run
 src/fauxton/test/test.config.js
 src/fauxton/app/initialize.js
+
+# rebar
+support/rebar/rebar
+support/rebar/inttest/rt.work
+rt.work
+rebar
+support/rebar/.test

@@ -55,6 +55,7 @@
 ^libtool
 ^license.skip
 ^m4/.*
+^rebar
 ^share/Makefile
 ^share/Makefile.in
 ^share/doc/Makefile
@@ -161,6 +162,7 @@
 ^src/my-first-couchdb-plugin/Makefile.in
 ^src/snappy/.*
 ^stamp-h1
+^support/rebar/.*
 ^test/Makefile
 ^test/Makefile.in
 ^test/bench/Makefile
