@@ -134,6 +134,8 @@ utils/run
 src/fauxton/test/test.config.js
 src/fauxton/app/initialize.js
 
+deps
+
 # rebar
 support/rebar/rebar
 support/rebar/inttest/rt.work
@@ -142,6 +144,13 @@ rebar
 support/rebar/.test
 
 # couch_collate
-src/couch_collate/ebin
-src/couch_collate/priv
-rc/couch_collate/c_src/*.o
+apps/couch_collate/ebin
+apps/couch_collate/priv
+apps/couch_collate/c_src/*.o
+
+apps/couch/ebin
+apps/couch_replicator/ebin
+apps/couch_mrview/ebin
+apps/couch_index/ebin
+apps/couch_dbupdates/ebin
+apps/couch_plugins/ebin

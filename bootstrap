@@ -15,35 +15,7 @@
 cd `dirname $0`
 export CURRENT=`pwd`
 
-get () {
-    variable_name=$1
-    echo "changequote(\`[', \`]')" > acinclude.m4.tmp
-    sed -e "s/m4_//" < acinclude.m4.in >> acinclude.m4.tmp
-    echo $variable_name >> acinclude.m4.tmp
-    if test -x "`which gm4 2> /dev/null || true`"; then
-        gm4 acinclude.m4.tmp | grep -v "^$" || true
-    else
-        if test -x "`which m4 2> /dev/null || true`"; then
-            m4 acinclude.m4.tmp | grep -v "^$" || true
-        else
-            echo unknown
-        fi
-    fi
-    rm -f acinclude.m4.tmp
-}
-
-if test -z "$REVISION"; then
-    if test -e .git; then
-        REVISION=`git describe --always`
-    fi
-fi
-
-if test -z "`get LOCAL_VERSION_STAGE`" -o -z "$REVISION"; then
-    sed "s/%revision%//" < acinclude.m4.in > acinclude.m4
-else
-    sed "s/%revision%/$REVISION/" < acinclude.m4.in > acinclude.m4
-fi
-
+# create contributor list
 if test -e .git; then
     OS=`uname -s`
     case "$OS" in
@@ -83,67 +55,6 @@ find_program() {
   set -e
   exit 1
 }
-
-LIBTOOLIZE=`find_program glibtoolize libtoolize`
-ACLOCAL=`find_program aclocal-1.11 aclocal-1.10 aclocal-1.9 aclocal`
-AUTOHEADER=`find_program autoheader`
-AUTOMAKE=`find_program automake-1.11 automake-1.10 automake-1.9 automake`
-AUTOCONF=`find_program autoconf`
-
-get_aclocal_dir_list () {
-    aclocal_dir=`$ACLOCAL --print-ac-dir`
-    echo $aclocal_dir
-    aclocal_dirlist="$aclocal_dir/dirlist"
-    if test -e $aclocal_dirlist; then
-        cat $aclocal_dirlist | while read dir; do
-            if test -d "$dir"; then
-                echo $dir
-            fi
-        done
-    fi
-}
-
-aclocal_dir_list=`get_aclocal_dir_list`
-
-if test -z "`find $aclocal_dir_list -name ax_check_icu.m4`"; then
-    echo "Unable to find the \`ax_check_icu.m4' file."
-    echo
-    echo "Have you installed GNU Autoconf Archive?"
-    exit 1
-fi
-
-if test -z "`find $aclocal_dir_list -name ax_lib_curl.m4`"; then
-    echo "Unable to find the \`ax_check_icu.m4' file."
-    echo
-    echo "Have you installed GNU Autoconf Archive?"
-    exit 1
-fi
-
-if test -z "`find $aclocal_dir_list -name pkg.m4`"; then
-    echo "Unable to find the \`pkg.m4' file."
-    echo
-    echo "Have you installed pkg-config?"
-    exit 1
-fi
-
-
-mkdir -p build-aux
-mkdir -p m4
-
-${LIBTOOLIZE} -f -c --automake
-${ACLOCAL} -I m4 -Wall
-${AUTOHEADER} -f
-${AUTOMAKE} -f -a -Wall
-${AUTOCONF} -f -Wall
-
-rm -f INSTALL
-
-ln -f -s "`dirname \`readlink build-aux/missing\``/INSTALL"
-
-if test ! -s INSTALL; then
-	echo "Broken INSTALL file."
-	exit 1
-fi
 
 
 # build rebar
