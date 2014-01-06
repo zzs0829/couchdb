@@ -135,6 +135,7 @@ src/fauxton/test/test.config.js
 src/fauxton/app/initialize.js
 
 deps
+vars.config
 
 # rebar
 support/rebar/rebar
@@ -154,3 +155,8 @@ apps/couch_mrview/ebin
 apps/couch_index/ebin
 apps/couch_dbupdates/ebin
 apps/couch_plugins/ebin
+
+# couchjs
+apps/couch/c_src/couch_js/*.o
+apps/couch/c_src/couch_js/config.h
+apps/couch/priv/couchjs

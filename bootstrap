@@ -56,6 +56,13 @@ find_program() {
   exit 1
 }
 
+REVISION=""
+if test -z "$REVISION"; then
+    if test -e .git; then
+        REVISION=`git describe --always`
+    fi
+fi
+sed "s/%revision%/$REVISION/" < vars.config.in > vars.config
 
 # build rebar
 export SUPPORT_DIR=$CURRENT/support
@@ -74,5 +81,5 @@ cp $SUPPORT_DIR/rebar/rebar $CURRENT/rebar
 cat << EOF
 You have bootstrapped Apache CouchDB, time to relax.
 
-Run \`./configure' to configure the source before you install.
+Run \`make' to build the source before you install.
 EOF
