@@ -44,8 +44,8 @@
 "specific language governing permissions and limitations\n"
 "under the License."}.
 
-{version_major, 1}.
-{version_minor, 6}.
+{version_major, 2}.
+{version_minor, 0}.
 {version_revision, 0}.
 {version_stage, "+build"}.
 {version_release, ".%revision%"}.
