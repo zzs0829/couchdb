@@ -136,6 +136,7 @@ src/fauxton/app/initialize.js
 
 deps
 pkg.vars.config
+rel/apache-couchdb
 
 # rebar
 support/rebar/rebar

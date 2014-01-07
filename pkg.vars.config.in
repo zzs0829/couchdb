@@ -14,12 +14,12 @@
 % the License.
 
 {package_name, "apache-couchdb"}.
-{package_install_name, "couchdb"}.
+{package_install_name, "apache-couchdb"}.
 {package_install_user, "couchdb"}.
 {package_install_group, "couchdb"}.
 {package_install_user_desc, "Apache CouchDB user"}.
 {package_bugreport, "https://issues.apache.org/jira/browse/COUCHDB"}.
-{package_commands, {list, [[{name, "couch"}], [{name, "couchjs"}]]}}.
+{package_commands, {list, [[{name, "couchdb"}], [{name, "couchjs"}]]}}.
 {package_shortdesc, "Apache CouchDB"}.
 {package_desc, "Apache CouchDB - document oriented database"}.
 {package_patch_dir, "couch-patches"}.
