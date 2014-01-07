@@ -162,3 +162,5 @@ apps/couch_rel/ebin/*.beam
 apps/couch/c_src/couch_js/*.o
 apps/couch/c_src/couch_js/config.h
 apps/couch/priv/couchjs
+apps/couch/c_src/spawnkillable/*.o
+apps/couch/priv/couchspawnkillable
