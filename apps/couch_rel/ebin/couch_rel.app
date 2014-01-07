@@ -1,6 +1,6 @@
 %% -*- tab-width: 4;erlang-indent-level: 4;indent-tabs-mode: nil -*-
 %% ex: ft=erlang ts=4 sw=4 et
-
+%%
 % Licensed under the Apache License, Version 2.0 (the "License"); you may not
 % use this file except in compliance with the License. You may obtain a copy of
 % the License at
@@ -13,15 +13,6 @@
 % License for the specific language governing permissions and limitations under
 % the License.
 
-{package_author_name, "The Apache Software Foundation"}.
-{package_author_address, "dev@couchdb.apache.org"}.
-{package_identifier, "couchdb"}.
-{package_tarname, "apache-couchdb"}.
-{package_name, "Apache CouchDB"}.
-{package_bugreport, "https://issues.apache.org/jira/browse/COUCHDB"}.
-{version_major, 1}.
-{version_minor, 6}.
-{version_revision, 0}.
-{version_stage, "+build"}.
-{version_release, ".%revision%"}.
-{couchjs_name, "couchjs"}.
+{application, couch_rel, [
+    {description,"couch extremely-early boot items"},
+        {modules, [etop_txt]}]}.

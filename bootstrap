@@ -62,7 +62,7 @@ if test -z "$REVISION"; then
         REVISION=`git describe --always`
     fi
 fi
-sed "s/%revision%/$REVISION/" < vars.config.in > vars.config
+sed "s/%revision%/$REVISION/" < pkg.vars.config.in > pkg.vars.config
 
 # build rebar
 export SUPPORT_DIR=$CURRENT/support
