@@ -65,7 +65,7 @@ fi
 sed "s/%revision%/$REVISION/" < pkg.vars.config.in > pkg.vars.config
 
 # build rebar
-export SUPPORT_DIR=$CURRENT/support
+export SUPPORT_DIR=$CURRENT/src/support
 ESCRIPT=`find_program escript`
 ERLC=`find_program erlc`
 

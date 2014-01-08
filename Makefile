@@ -1,30 +1,45 @@
 BASE_DIR = $(shell pwd)
 ERLANG_BIN = $(shell dirname $(shell which erl))
+GIT_BIN = $(shell dirname $(shell which git))
 REBAR ?= $(BASE_DIR)/rebar
 OVERLAY_VARS ?=
 
 $(if $(ERLANG_BIN),,$(warning "Warning: No Erlang found in your path, this will probably not work"))
 
+$(if $(GIT_BIN),,$(warning "Warning: No Git found in your path, this will probably not work"))
+
+
 .PHONY: rel deps
+
+COUCHDB_STATIC=1
+ifeq ($(libs), shared)
+	COUCHDB_STATIC=0
+endif
+export COUCHDB_STATIC
+
+USE_STATIC_ICU=0
+ifeq ($(icu), static)
+	USE_STATIC_ICU=1
+endif
+export USE_STATIC_ICU
 
 all: deps compile
 
 compile:
-	./rebar compile
+	@./rebar compile
 
 deps:
-	./rebar get-deps
+	@./rebar get-deps
 
 clean:
-	./rebar clean
+	@./rebar clean
 
 distclean: clean relclean
 
 generate:
-	./rebar generate $(OVERLAY_VARS)
+	@./rebar generate $(OVERLAY_VARS)
 
 rel: deps compile generate
 
 relclean:
-	rm -rf rel/apache-couchdb
-
+	@rm -rf rel/apache-couchdb

@@ -148,6 +148,8 @@ support/rebar/.test
 src/apps/couch_collate/ebin
 src/apps/couch_collate/priv
 src/apps/couch_collate/c_src/*.o
+src/apps/couch_collate/.libs
+src/apps/couch_collate/.dists
 
 src/apps/couch/ebin
 src/apps/couch_replicator/ebin
@@ -163,3 +165,8 @@ src/apps/couch/c_src/couch_js/config.h
 src/apps/couch/priv/couchjs
 src/apps/couch/c_src/spawnkillable/*.o
 src/apps/couch/priv/couchspawnkillable
+src/apps/couch/.libs
+src/apps/couch/.dists
+
+src/share/server/main-coffee.js
+src/share/server/main.js
