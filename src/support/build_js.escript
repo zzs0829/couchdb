@@ -19,26 +19,26 @@
 
 
 main([]) ->
-    JsFiles = ["share/server/json2.js",
-               "share/server/filter.js",
-               "share/server/mimeparse.js",
-               "share/server/render.js",
-               "share/server/state.js",
-               "share/server/util.js",
-               "share/server/validate.js",
-               "share/server/views.js",
-               "share/server/loop.js"],
+    JsFiles = ["src/share/server/json2.js",
+               "src/share/server/filter.js",
+               "src/share/server/mimeparse.js",
+               "src/share/server/render.js",
+               "src/share/server/state.js",
+               "src/share/server/util.js",
+               "src/share/server/validate.js",
+               "src/share/server/views.js",
+               "src/share/server/loop.js"],
 
-    CoffeeFiles = ["share/server/json2.js",
-                   "share/server/filter.js",
-                   "share/server/mimeparse.js",
-                   "share/server/render.js",
-                   "share/server/state.js",
-                   "share/server/util.js",
-                   "share/server/validate.js",
-                   "share/server/views.js",
-                   "share/server/coffee-script.js",
-                   "share/server/loop.js"],
+    CoffeeFiles = ["src/share/server/json2.js",
+                   "src/share/server/filter.js",
+                   "src/share/server/mimeparse.js",
+                   "src/share/server/render.js",
+                   "src/share/server/state.js",
+                   "src/share/server/util.js",
+                   "src/share/server/validate.js",
+                   "src/share/server/views.js",
+                   "src/share/server/coffee-script.js",
+                   "src/share/server/loop.js"],
 
 
     Concat = fun(Files, To) ->
@@ -50,6 +50,6 @@ main([]) ->
             file:write_file(To, FinalBin)
     end,
 
-    ok = Concat(JsFiles, "share/server/main.js"),
-    ok = Concat(CoffeeFiles, "share/server/main-coffee.js"),
+    ok = Concat(JsFiles, "src/share/server/main.js"),
+    ok = Concat(CoffeeFiles, "src/share/server/main-coffee.js"),
     ok.

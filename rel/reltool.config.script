@@ -42,7 +42,7 @@ CouchJSName = proplists:get_value(couchjs_name, Cfg, "couchjs"),
 
 [
     {sys, [
-            {lib_dirs, ["../deps", "../apps"]},
+            {lib_dirs, ["../src/deps", "../src/apps"]},
             {rel, "couchdb", Vsn,
                 [
                     kernel,
@@ -122,29 +122,29 @@ CouchJSName = proplists:get_value(couchjs_name, Cfg, "couchjs"),
         {mkdir, "data"},
 
         %% keep empty files
-        {copy, "files/empty", "log/KEEP"},
-        {copy, "files/empty", "data/KEEP"},
+        {copy, "../src/etc/couchdb/empty", "log/KEEP"},
+        {copy, "../src/etc/couchdb/empty", "data/KEEP"},
 
         %% Copy base files for starting and interacting w/ node
-        {copy, "../deps/node_package/priv/base/erl", "{{erts_vsn}}/bin/erl"},
-        {copy, "../deps/node_package/priv/base/nodetool", "{{erts_vsn}}/bin/nodetool"},
-        {template, "../deps/node_package/priv/base/runner", "bin/couchdb"},
-        {template, "../deps/node_package/priv/base/env.sh", "lib/env.sh"},
+        {copy, "../src/deps/node_package/priv/base/erl", "{{erts_vsn}}/bin/erl"},
+        {copy, "../src/deps/node_package/priv/base/nodetool", "{{erts_vsn}}/bin/nodetool"},
+        {template, "../src/deps/node_package/priv/base/runner", "bin/couchdb"},
+        {template, "../src/deps/node_package/priv/base/env.sh", "lib/env.sh"},
 
 
         %% config files
-        {template, "files/app.config", "etc/app.config"},
-        {template, "files/vm.args", "etc/vm.args"},
-        {template, "files/couch.ini", "etc/couch.ini"},
-        {template, "files/local.ini", "etc/local.ini"},
+        {template, "../src/etc/couchdb/app.config", "etc/app.config"},
+        {template, "../src/etc/couchdb/vm.args", "etc/vm.args"},
+        {template, "../src/etc/couchdb/couch.ini", "etc/couch.ini"},
+        {template, "../src/etc/couchdb/local.ini", "etc/local.ini"},
 
         %% couchdb data files
-        {copy, "../share"},
-        {copy, "../apps/couch/priv/" ++ CouchJSName, "bin/" ++ CouchJSName},
+        {copy, "../src/share"},
+        {copy, "../src/apps/couch/priv/" ++ CouchJSName, "bin/" ++ CouchJSName},
 
         %% misc
         {mkdir, "lib/couch-patches"},
-        {copy, "../apps/couch_rel/ebin/etop_txt.beam", "lib/couch-patches"}
+        {copy, "../src/apps/couch_rel/ebin/etop_txt.beam", "lib/couch-patches"}
 
     ]}
 ].
