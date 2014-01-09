@@ -148,7 +148,7 @@ CouchJSName = proplists:get_value(couchjs_name, Cfg, "couchjs"),
 
         %% misc
         {mkdir, "lib/couch-patches"},
-        {copy, "../src/apps/couch_rel/ebin/etop_txt.beam", "lib/couch-patches"}
+        {copy, "../src/support/couch_rel/ebin/etop_txt.beam", "lib/couch-patches"}
 
     ]}
 ].

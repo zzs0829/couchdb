@@ -43,3 +43,6 @@ rel: deps compile generate
 
 relclean:
 	@rm -rf rel/apache-couchdb
+
+doc:
+
