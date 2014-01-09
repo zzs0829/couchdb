@@ -41,7 +41,6 @@ main(_) ->
 
 test() ->
     {ok, _} = couch_server_sup:start_link(test_util:config_files()),
-    {ok, _} = couch_index_sup:start_link(),
 
     couch_server:delete(?TEST_DB, []),
     timer:sleep(1000),

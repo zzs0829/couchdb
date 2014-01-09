@@ -41,9 +41,6 @@ main(_) ->
 %%
 test() ->
     couch_server_sup:start_link(test_util:config_files()),
-    {ok, Pid} = couch_index_sup:start_link(),
-    unlink(Pid),
-
     timer:sleep(1000),
     delete_db(),
     create_db(),
@@ -166,7 +163,6 @@ restore_backup_db_file() ->
     ok = file:delete(DbFile),
     ok = file:rename(DbFile ++ ".backup", DbFile),
     couch_server_sup:start_link(test_util:config_files()),
-    couch_index_sup:start_link(),
     timer:sleep(1000),
     put(port, integer_to_list(mochiweb_socket_server:get(couch_httpd, port))),
     ok.

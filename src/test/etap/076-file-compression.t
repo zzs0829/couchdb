@@ -40,7 +40,6 @@ main(_) ->
 
 test() ->
     {ok, _} = couch_server_sup:start_link(test_util:config_files()),
-    {ok, _} = couch_index_sup:start_link(),
 
     couch_config:set("couchdb", "file_compression", "none", false),
 

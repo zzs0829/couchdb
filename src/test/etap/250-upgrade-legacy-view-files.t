@@ -30,7 +30,6 @@ main(_) ->
 
 test() ->
     couch_server_sup:start_link(test_util:config_files()),
-    couch_index_sup:start_link(),
 
     % commit sofort
     ok = couch_config:set("query_server_config", "commit_freq", "0"),
