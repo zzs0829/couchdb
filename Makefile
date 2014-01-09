@@ -1,18 +1,14 @@
 BASE_DIR = $(shell pwd)
-ERLANG_BIN = $(shell dirname $(shell which erl))
-ESCRIPT = $(shell which escript)
-GIT_BIN = $(shell dirname $(shell which git))
+ERLC ?= $(shell which erl)
+ESCRIPT ?= $(shell which escript)
 REBAR ?= $(BASE_DIR)/rebar
 OVERLAY_VARS ?=
 
-$(if $(ERLANG_BIN),,$(warning "Warning: No Erlang found in your path, this will probably not work"))
+$(if $(ERLC),,$(warning "Warning: No Erlang found in your path, this will probably not work"))
 
 $(if $(ESCRIPT),,$(warning "Warning: No escript found in your path, this will probably not work"))
 
-$(if $(GIT_BIN),,$(warning "Warning: No Git found in your path, this will probably not work"))
-
-
-.PHONY: rel deps
+.PHONY: rel deps rebar
 
 COUCHDB_STATIC=1
 ifeq ($(libs), shared)
@@ -26,23 +22,23 @@ ifeq ($(icu), static)
 endif
 export USE_STATIC_ICU
 
-all: rebar deps compile
+all: deps compile
 
 compile:
-	@./rebar compile
+	@$(REBAR) compile
 
-deps:
-	@./rebar get-deps
+deps: rebar
+	@$(REBAR) get-deps
 
-clean: rebarclean
-	@./rebar clean
+clean:
+	@$(REBAR) clean
 
-distclean: clean relclean
+distclean: clean rebarclean relclean
 
 generate:
-	@./rebar generate $(OVERLAY_VARS)
+	@$(REBAR) generate $(OVERLAY_VARS)
 
-rel: deps compile generate
+rel: generate
 
 relclean:
 	@rm -rf rel/apache-couchdb
@@ -51,9 +47,8 @@ rebar:
 	@(test ! -e $(BASE_DIR)/src/support/rebar/rebar && \
 		echo "==> build rebar" && \
 		cd $(BASE_DIR)/src/support/rebar && \
-		$(ESCRIPT) bootstrap)
-
-	cp $(BASE_DIR)/src/support/rebar/rebar $(BASE_DIR)/rebar
+		$(ESCRIPT) bootstrap || true)
+	@cp $(BASE_DIR)/src/support/rebar/rebar $(BASE_DIR)/rebar
 
 rebarclean:
 	@(cd $(BASE_DIR)/support/rebar/rebar && \
