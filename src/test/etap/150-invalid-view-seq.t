@@ -41,7 +41,8 @@ main(_) ->
 %%
 test() ->
     couch_server_sup:start_link(test_util:config_files()),
-    couch_index_sup:start_link(),
+    {ok, Pid} = couch_index_sup:start_link(),
+    unlink(Pid),
 
     timer:sleep(1000),
     delete_db(),
@@ -65,7 +66,7 @@ test() ->
     query_view_after_restore_backup(),
 
     delete_db(),
-    couch_server_sup:stop(),
+    catch couch_server_sup:stop(),
     ok.
 
 admin_user_ctx() ->

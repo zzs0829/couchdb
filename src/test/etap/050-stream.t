@@ -31,7 +31,8 @@ read_all(Fd, PosList) ->
     iolist_to_binary(Data).
 
 test() ->
-    {ok, Fd} = couch_file:open("test/etap/temp.050", [create,overwrite]),
+    {ok, Fd} = couch_file:open(test_util:build_file("test/etap/temp.050"),
+                               [create,overwrite]),
     {ok, Stream} = couch_stream:open(Fd),
 
     etap:is(ok, couch_stream:write(Stream, <<"food">>),

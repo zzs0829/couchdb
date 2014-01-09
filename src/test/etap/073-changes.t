@@ -427,7 +427,7 @@ stop(Consumer) ->
     receive
     {ok, Ref} ->
         ok
-    after 3000 ->
+    after 4000 ->
         etap:bail("Timeout stopping consumer")
     end.
 

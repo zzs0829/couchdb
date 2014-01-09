@@ -14,7 +14,7 @@
 % License for the specific language governing permissions and limitations under
 % the License.
 
-filename() -> "./test/etap/temp.021".
+filename() -> test_util:build_file("test/etap/temp.021").
 rows() -> 1000.
 
 main(_) ->

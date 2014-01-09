@@ -17,12 +17,10 @@
 -export([run/2]).
 -export([request/3, request/4]).
 
+
 builddir() ->
     Current = filename:dirname(code:which(?MODULE)),
     filename:absname(filename:join([Current, "..", ".."])).
-
-
-
 
 srcdir() ->
     filename:join([builddir(), "apps"]).

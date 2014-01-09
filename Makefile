@@ -68,6 +68,10 @@ test: deps compile testbuild
 	prove $(BASE_DIR)/src/apps/couch_mrview/test/*.t
 	prove $(BASE_DIR)/src/apps/couch_replicator/test/*.t
 
+verbose-test: deps compile testbuild
+	prove -v $(COUCHDB_ETAP_DIR)/*.t
+	prove -v $(BASE_DIR)/src/apps/couch_mrview/test/*.t
+	prove -v $(BASE_DIR)/src/apps/couch_replicator/test/*.t
 
 testbuild: testclean
 	$(ERLC) -v -o $(COUCHDB_ETAP_DIR) $(COUCHDB_ETAP_DIR)/etap.erl

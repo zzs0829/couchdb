@@ -497,6 +497,6 @@ stop(Pid, Name) ->
     receive
     {ok, Ref} ->
         etap:diag("Stopped " ++ Name)
-    after 3000 ->
+    after 4000 ->
         etap:bail("Timeout stopping " ++ Name)
     end.
