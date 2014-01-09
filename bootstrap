@@ -64,20 +64,6 @@ if test -z "$REVISION"; then
 fi
 sed "s/%revision%/$REVISION/" < pkg.vars.config.in > pkg.vars.config
 
-# build rebar
-export SUPPORT_DIR=$CURRENT/src/support
-ESCRIPT=`find_program escript`
-ERLC=`find_program erlc`
-
-cd $SUPPORT_DIR/rebar && ${ESCRIPT} bootstrap 1>/dev/null || true
-
-if test ! -e $SUPPORT_DIR/rebar/rebar; then
-    echo "Error when building rebar"
-    exit 1
-fi
-
-cp $SUPPORT_DIR/rebar/rebar $CURRENT/rebar
-
 cat << EOF
 You have bootstrapped Apache CouchDB, time to relax.
 
