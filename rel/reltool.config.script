@@ -139,7 +139,11 @@ CouchJSName = proplists:get_value(couchjs_name, Cfg, "couchjs"),
         {template, "../src/etc/couchdb/local.ini", "etc/local.ini"},
 
         %% couchdb data files
-        {copy, "../src/share"},
+        {mkdir, "share"},
+        {mkdir, "share/server"},
+        {copy, "../src/share/server/main.js", "share/server"},
+        {copy, "../src/share/server/main-coffee.js", "share/server"},
+        {copy, "../src/share/www", "share"},
         {copy, "../src/apps/couch/priv/" ++ CouchJSName, "bin/" ++ CouchJSName},
 
         %% misc
