@@ -161,5 +161,6 @@ src/share/server/main.js
 
 src/test/etap/test_cfg_register
 src/test/out
-src/test/etap
-src/test/etap
+src/test/etap/*.beam
+src/test/etap/*.o
+src/test/etap/temp.*
