@@ -1,5 +1,6 @@
 #!/usr/bin/env escript
 %% -*- erlang -*-
+%%! -pa ./src/deps/*/ebin -pa ./src/apps/*/ebin -pa ./src/test/etap
 
 % Licensed under the Apache License, Version 2.0 (the "License"); you may not
 % use this file except in compliance with the License. You may obtain a copy of
@@ -39,8 +40,9 @@ main(_) ->
     ok.
 
 test() ->
-
     {ok, _} = couch_server_sup:start_link(test_util:config_files()),
+    {ok, _} = couch_index_sup:start_link(),
+
     couch_server:delete(?TEST_DB, []),
     timer:sleep(1000),
 

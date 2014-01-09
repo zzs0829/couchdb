@@ -1,5 +1,6 @@
 #!/usr/bin/env escript
 %% -*- erlang -*-
+%%! -pa ./src/deps/*/ebin -pa ./src/apps/*/ebin -pa ./src/test/etap
 % Licensed under the Apache License, Version 2.0 (the "License"); you may not
 % use this file except in compliance with the License. You may obtain a copy of
 % the License at
@@ -72,16 +73,16 @@ test() ->
     {ok, BinPos, _} = couch_file:append_binary(Fd, <<131,100,0,3,102,111,111>>),
     etap:is({ok, foo}, couch_file:pread_term(Fd, BinPos),
         "Reading a term from a written binary term representation succeeds."),
-        
+
     BigBin = list_to_binary(lists:duplicate(100000, 0)),
     {ok, BigBinPos, _} = couch_file:append_binary(Fd, BigBin),
     etap:is({ok, BigBin}, couch_file:pread_binary(Fd, BigBinPos),
         "Reading a large term from a written representation succeeds."),
-    
+
     ok = couch_file:write_header(Fd, hello),
     etap:is({ok, hello}, couch_file:read_header(Fd),
         "Reading a header succeeds."),
-        
+
     {ok, BigBinPos2, _} = couch_file:append_binary(Fd, BigBin),
     etap:is({ok, BigBin}, couch_file:pread_binary(Fd, BigBinPos2),
         "Reading a large term from a written representation succeeds 2."),

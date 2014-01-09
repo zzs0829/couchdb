@@ -1,5 +1,6 @@
 #!/usr/bin/env escript
 %% -*- erlang -*-
+%%! -pa ./src/deps/*/ebin -pa ./src/apps/*/ebin -pa ./src/test/etap
 
 % Licensed under the Apache License, Version 2.0 (the "License"); you may not
 % use this file except in compliance with the License. You may obtain a copy of
@@ -66,6 +67,8 @@ main(_) ->
 
 test() ->
     couch_server_sup:start_link(test_util:config_files()),
+    couch_index_sup:start_link(),
+
     timer:sleep(1000),
     put(addr, couch_config:get("httpd", "bind_address", "127.0.0.1")),
     put(port, integer_to_list(mochiweb_socket_server:get(couch_httpd, port))),
@@ -193,7 +196,7 @@ wait_view_compact_done(N) ->
         200 -> ok;
         _ -> etap:bail("Invalid view group info.")
     end,
-    {Info} = ejson:decode(Body),
+    {Info} = couch_util:json_decode(Body),
     {IndexInfo} = couch_util:get_value(<<"view_index">>, Info),
     CompactRunning = couch_util:get_value(<<"compact_running">>, IndexInfo),
     case CompactRunning of
@@ -292,7 +295,7 @@ query_view(ExpectedRowCount, ExpectedRowValue, Stale) ->
         [],
         get),
     etap:is(Code, 200, "got view response"),
-    {Props} = ejson:decode(Body),
+    {Props} = couch_util:json_decode(Body),
     Rows = couch_util:get_value(<<"rows">>, Props, []),
     etap:is(length(Rows), ExpectedRowCount, "result set has correct # of rows"),
     lists:foreach(

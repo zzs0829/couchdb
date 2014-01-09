@@ -1,4 +1,7 @@
 #!/usr/bin/env escript
+%% -*- erlang -*-
+%%! -pa ./src/deps/*/ebin -pa ./src/apps/*/ebin -pa ./src/test/etap
+
 % Licensed under the Apache License, Version 2.0 (the "License"); you may not
 % use this file except in compliance with the License. You may obtain a copy of
 % the License at
@@ -14,19 +17,14 @@
 main(_) ->
     test_util:init_code_path(),
     couch_config:start_link(test_util:config_files()),
-    etap:plan(3),
+    etap:plan(2),
     etap:is(
-        element(1, couch_drv:start_link()),
-        ok,
-        "Started couch_icu_driver."
-    ),
-    etap:is(
-        couch_util:collate(<<"foo">>, <<"bar">>),
+        couch_collate:collate(<<"foo">>, <<"bar">>),
         1,
         "Can collate stuff"
     ),
     etap:is(
-        couch_util:collate(<<"A">>, <<"aa">>),
+        couch_collate:collate(<<"A">>, <<"aa">>),
         -1,
         "Collate's non-ascii style."
     ),

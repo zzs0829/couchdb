@@ -1,5 +1,6 @@
 #!/usr/bin/env escript
 %% -*- erlang -*-
+%%! -pa ./src/deps/*/ebin -pa ./src/apps/*/ebin -pa ./src/test/etap
 
 % Licensed under the Apache License, Version 2.0 (the "License"); you may not
 % use this file except in compliance with the License.  You may obtain a copy of
@@ -25,21 +26,21 @@
 }).
 
 config_files() ->
-    lists:map(fun test_util:build_file/1, [
-        "etc/couchdb/default_dev.ini"
+    lists:map(fun test_util:test_file/1, [
+        "couch_test.ini"
     ]).
 
 bad_perms() ->
-    test_util:source_file("test/etap/172-os-daemon-errors.1.sh").
+    test_util:build_file("test/etap/172-os-daemon-errors.1.sh").
 
 die_on_boot() ->
-    test_util:source_file("test/etap/172-os-daemon-errors.2.sh").
+    test_util:build_file("test/etap/172-os-daemon-errors.2.sh").
 
 die_quickly() ->
-    test_util:source_file("test/etap/172-os-daemon-errors.3.sh").
+    test_util:build_file("test/etap/172-os-daemon-errors.3.sh").
 
 can_reboot() ->
-    test_util:source_file("test/etap/172-os-daemon-errors.4.sh").
+    test_util:build_file("test/etap/172-os-daemon-errors.4.sh").
 
 main(_) ->
     test_util:init_code_path(),

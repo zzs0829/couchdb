@@ -1,6 +1,6 @@
 #!/usr/bin/env escript
 %% -*- erlang -*-
-
+%%! -pa ./src/deps/*/ebin -pa ./src/apps/*/ebin -pa ./src/test/etap
 % Licensed under the Apache License, Version 2.0 (the "License"); you may not
 % use this file except in compliance with the License. You may obtain a copy of
 % the License at
@@ -14,7 +14,7 @@
 % the License.
 
 default_config() ->
-    test_util:build_file("etc/couchdb/default_dev.ini").
+    test_util:test_file("couch_test.ini").
 
 main(_) ->
     test_util:init_code_path(),
@@ -68,7 +68,7 @@ test() ->
 
     etap:is(
         couch_config:get("httpd", "port", "bar"),
-        "5984",
+        "0",
         "Only returns the default when the config setting does not exist."
     ),
 

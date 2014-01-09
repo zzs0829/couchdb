@@ -1,4 +1,6 @@
 #!/usr/bin/env escript
+%%! -pa ./src/deps/*/ebin -pa ./src/apps/*/ebin -pa ./src/test/etap
+
 % Licensed under the Apache License, Version 2.0 (the "License"); you may not
 % use this file except in compliance with the License. You may obtain a copy of
 % the License at
@@ -67,7 +69,7 @@ check_request(Name, Req, Remote, Local) ->
     Resp.
 
 test() ->
-    ExtraConfig = [test_util:source_file("test/etap/180-http-proxy.ini")],
+    ExtraConfig = [test_util:build_file("test/etap/180-http-proxy.ini")],
     couch_server_sup:start_link(test_util:config_files() ++ ExtraConfig),
     ibrowse:start(),
     crypto:start(),

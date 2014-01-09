@@ -117,17 +117,6 @@ src/snappy/google-snappy/stamp-h2
 src/snappy/priv
 src/snappy/snappy.app
 stamp-h1
-test/.deps/
-test/bench/run
-test/etap/.deps/
-test/etap/run
-test/etap/run
-test/etap/temp.*
-test/etap/test_cfg_register
-test/etap/test_util.erl
-test/javascript/run
-test/javascript/run_js_tests.sh
-test/local.ini
 tmp
 utils/run
 src/fauxton/test/test.config.js
@@ -169,3 +158,8 @@ src/apps/couch/.dists
 
 src/share/server/main-coffee.js
 src/share/server/main.js
+
+src/test/etap/test_cfg_register
+src/test/out
+src/test/etap
+src/test/etap

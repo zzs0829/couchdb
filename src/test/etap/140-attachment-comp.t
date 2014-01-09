@@ -1,5 +1,6 @@
 #!/usr/bin/env escript
 %% -*- erlang -*-
+%%! -pa ./src/deps/*/ebin -pa ./src/apps/*/ebin -pa ./src/test/etap
 
 % Licensed under the Apache License, Version 2.0 (the "License"); you may not
 % use this file except in compliance with the License. You may obtain a copy of
@@ -31,8 +32,9 @@ main(_) ->
 
 test() ->
     couch_server_sup:start_link(test_util:config_files()),
-    put(addr, couch_config:get("httpd", "bind_address", "127.0.0.1")),
-    put(port, integer_to_list(mochiweb_socket_server:get(couch_httpd, port))),
+
+    erlang:put(addr, couch_config:get("httpd", "bind_address", "127.0.0.1")),
+    erlang:put(port, integer_to_list(mochiweb_socket_server:get(couch_httpd, port))),
     timer:sleep(1000),
     couch_server:delete(test_db_name(), []),
     couch_db:create(test_db_name(), []),
@@ -82,7 +84,7 @@ test() ->
     ok.
 
 db_url() ->
-    "http://" ++ get(addr) ++ ":" ++ get(port) ++ "/" ++
+    "http://" ++ erlang:get(addr) ++ ":" ++ erlang:get(port) ++ "/" ++
     binary_to_list(test_db_name()).
 
 create_1st_text_att() ->
@@ -117,7 +119,7 @@ create_2nd_text_att() ->
         db_url() ++ "/testdoc3",
         [{"Content-Type", "application/json"}],
         put,
-        ejson:encode(DocJson)),
+        jiffy:encode(DocJson)),
     etap:is(Code, 201, "Created text attachment using the non-standalone api"),
     ok.
 
@@ -135,7 +137,7 @@ create_2nd_png_att() ->
         db_url() ++ "/testdoc4",
         [{"Content-Type", "application/json"}],
         put,
-        ejson:encode(DocJson)),
+        jiffy:encode(DocJson)),
     etap:is(Code, 201, "Created png attachment using the non-standalone api"),
     ok.
 
@@ -290,7 +292,7 @@ test_get_doc_with_1st_text_att() ->
         [{"Accept", "application/json"}],
         get),
     etap:is(Code, 200, "HTTP response code is 200"),
-    Json = ejson:decode(Body),
+    Json = couch_util:json_decode(Body),
     TextAttJson = couch_util:get_nested_json_value(
         Json,
         [<<"_attachments">>, <<"readme.txt">>]
@@ -323,7 +325,7 @@ test_1st_text_att_stub() ->
         [],
         get),
     etap:is(Code, 200, "HTTP response code is 200"),
-    Json = ejson:decode(Body),
+    Json = couch_util:json_decode(Body),
     {TextAttJson} = couch_util:get_nested_json_value(
         Json,
         [<<"_attachments">>, <<"readme.txt">>]
@@ -354,7 +356,7 @@ test_get_doc_with_1st_png_att() ->
         [{"Accept", "application/json"}],
         get),
     etap:is(Code, 200, "HTTP response code is 200"),
-    Json = ejson:decode(Body),
+    Json = couch_util:json_decode(Body),
     PngAttJson = couch_util:get_nested_json_value(
         Json,
         [<<"_attachments">>, <<"icon.png">>]
@@ -381,7 +383,7 @@ test_1st_png_att_stub() ->
         [{"Accept", "application/json"}],
         get),
     etap:is(Code, 200, "HTTP response code is 200"),
-    Json = ejson:decode(Body),
+    Json = couch_util:json_decode(Body),
     {PngAttJson} = couch_util:get_nested_json_value(
         Json,
         [<<"_attachments">>, <<"icon.png">>]
@@ -473,7 +475,7 @@ test_get_doc_with_2nd_text_att() ->
         [{"Accept", "application/json"}],
         get),
     etap:is(Code, 200, "HTTP response code is 200"),
-    Json = ejson:decode(Body),
+    Json = couch_util:json_decode(Body),
     TextAttJson = couch_util:get_nested_json_value(
         Json,
         [<<"_attachments">>, <<"readme.txt">>]
@@ -502,7 +504,7 @@ test_2nd_text_att_stub() ->
         [],
         get),
     etap:is(Code, 200, "HTTP response code is 200"),
-    Json = ejson:decode(Body),
+    Json = couch_util:json_decode(Body),
     {TextAttJson} = couch_util:get_nested_json_value(
         Json,
         [<<"_attachments">>, <<"readme.txt">>]
@@ -533,7 +535,7 @@ test_get_doc_with_2nd_png_att() ->
         [{"Accept", "application/json"}],
         get),
     etap:is(Code, 200, "HTTP response code is 200"),
-    Json = ejson:decode(Body),
+    Json = couch_util:json_decode(Body),
     PngAttJson = couch_util:get_nested_json_value(
         Json,
         [<<"_attachments">>, <<"icon.png">>]
@@ -560,7 +562,7 @@ test_2nd_png_att_stub() ->
         [],
         get),
     etap:is(Code, 200, "HTTP response code is 200"),
-    Json = ejson:decode(Body),
+    Json = couch_util:json_decode(Body),
     {PngAttJson} = couch_util:get_nested_json_value(
         Json,
         [<<"_attachments">>, <<"icon.png">>]
@@ -626,7 +628,7 @@ test_get_already_compressed_att_stub(DocUri, AttName) ->
         [],
         get),
     etap:is(Code, 200, "HTTP response code is 200"),
-    Json = ejson:decode(Body),
+    Json = couch_util:json_decode(Body),
     {AttJson} = couch_util:get_nested_json_value(
         Json,
         [<<"_attachments">>, iolist_to_binary(AttName)]
@@ -690,7 +692,7 @@ test_compressible_type_with_parameters() ->
         [],
         get),
     etap:is(Code3, 200, "HTTP response code is 200"),
-    Json = ejson:decode(Body3),
+    Json = couch_util:json_decode(Body3),
     {TextAttJson} = couch_util:get_nested_json_value(
         Json,
         [<<"_attachments">>, <<"readme.txt">>]
@@ -717,12 +719,12 @@ test_compressible_type_with_parameters() ->
 
 test_png_data() ->
     {ok, Data} = file:read_file(
-        test_util:source_file("share/www/image/logo.png")
+        test_util:build_file("share/www/image/logo.png")
     ),
     Data.
 
 test_text_data() ->
     {ok, Data} = file:read_file(
-        test_util:source_file("README.rst")
+        test_util:build_file("../README.rst")
     ),
     Data.

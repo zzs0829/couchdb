@@ -1,4 +1,7 @@
 #!/usr/bin/env escript
+%% -*- erlang -*-
+%%! -pa ./src/deps/*/ebin -pa ./src/apps/*/ebin -pa ./src/test/etap
+
 % Licensed under the Apache License, Version 2.0 (the "License"); you may not
 % use this file except in compliance with the License. You may obtain a copy of
 % the License at
@@ -26,7 +29,7 @@ docid() ->
 
 main(_) ->
     test_util:init_code_path(),
-    
+
     etap:plan(16),
     case (catch test()) of
         ok ->
@@ -39,6 +42,7 @@ main(_) ->
 
 test() ->
     couch_server_sup:start_link(test_util:config_files()),
+
     Addr = couch_config:get("httpd", "bind_address", any),
     put(addr, Addr),
     put(port, mochiweb_socket_server:get(couch_httpd, port)),
@@ -229,7 +233,7 @@ do_request(Request) ->
     [Header, Body] = re:split(R, "\r\n\r\n", [{return, binary}]),
     {ok, {http_response, _, Code, _}, _} =
         erlang:decode_packet(http, Header, []),
-    Json = ejson:decode(Body),
+    Json = couch_util:json_decode(Body),
     {Code, Json}.
 
 get_json(Json, Path) ->
@@ -245,4 +249,3 @@ to_hex(Val, Acc) ->
 
 hex_char(V) when V < 10 -> $0 + V;
 hex_char(V) -> $A + V - 10.
-

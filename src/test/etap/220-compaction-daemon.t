@@ -1,5 +1,6 @@
 #!/usr/bin/env escript
 %% -*- erlang -*-
+%%! -pa ./src/deps/*/ebin -pa ./src/apps/*/ebin -pa ./src/test/etap
 
 % Licensed under the Apache License, Version 2.0 (the "License"); you may not
 % use this file except in compliance with the License. You may obtain a copy of
@@ -37,6 +38,7 @@ main(_) ->
 
 test() ->
     couch_server_sup:start_link(test_util:config_files()),
+    couch_index_sup:start_link(),
     timer:sleep(1000),
     put(addr, couch_config:get("httpd", "bind_address", "127.0.0.1")),
     put(port, integer_to_list(mochiweb_socket_server:get(couch_httpd, port))),

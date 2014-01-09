@@ -1,5 +1,8 @@
 #! /usr/bin/env escript
+%%! -pa ./src/deps/*/ebin -pa ./src/apps/*/ebin -pa ./src/test/etap
 
+
+%
 % Licensed under the Apache License, Version 2.0 (the "License"); you may not
 % use this file except in compliance with the License. You may obtain a copy of
 % the License at
@@ -13,18 +16,18 @@
 % the License.
 
 filename() ->
-    list_to_binary(test_util:source_file("test/etap/171-os-daemons-config.es")).
+    list_to_binary(test_util:build_file("test/etap/171-os-daemons-config.es")).
 
 read() ->
     case io:get_line('') of
         eof ->
             stop;
         Data ->
-            ejson:decode(Data)
+            couch_util:json_decode(Data)
     end.
 
 write(Mesg) ->
-    Data = iolist_to_binary(ejson:encode(Mesg)),
+    Data = iolist_to_binary(jiffy:encode(Mesg)),
     io:format(binary_to_list(Data) ++ "\n", []).
 
 get_cfg(Section) ->
@@ -81,5 +84,4 @@ loop({error, _Reason}) ->
 main([]) ->
     test_util:init_code_path(),
     couch_config:start_link(test_util:config_files()),
-    couch_drv:start_link(),
     do_tests().

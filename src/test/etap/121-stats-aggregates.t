@@ -1,5 +1,6 @@
 #!/usr/bin/env escript
 %% -*- erlang -*-
+%%! -pa ./src/deps/*/ebin -pa ./src/apps/*/ebin -pa ./src/test/etap
 
 % Licensed under the Apache License, Version 2.0 (the "License"); you may not
 % use this file except in compliance with the License. You may obtain a copy of
@@ -14,10 +15,10 @@
 % the License.
 
 ini_file() ->
-    test_util:source_file("test/etap/121-stats-aggregates.ini").
+    test_util:build_file("test/etap/121-stats-aggregates.ini").
 
 cfg_file() ->
-    test_util:source_file("test/etap/121-stats-aggregates.cfg").
+    test_util:build_file("test/etap/121-stats-aggregates.cfg").
 
 main(_) ->
     test_util:init_code_path(),
@@ -58,7 +59,7 @@ test_all_empty() ->
         "{number, '11'} is empty at start."
     ),
     ok.
-    
+
 test_get_empty() ->
     etap:is(
         couch_stats_aggregator:get_json({testing, stuff}),

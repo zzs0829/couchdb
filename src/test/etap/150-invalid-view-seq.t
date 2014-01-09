@@ -1,5 +1,6 @@
 #!/usr/bin/env escript
 %% -*- erlang -*-
+%%! -pa ./src/deps/*/ebin -pa ./src/apps/*/ebin -pa ./src/test/etap
 
 % Licensed under the Apache License, Version 2.0 (the "License"); you may not
 % use this file except in compliance with the License. You may obtain a copy of
@@ -40,6 +41,8 @@ main(_) ->
 %%
 test() ->
     couch_server_sup:start_link(test_util:config_files()),
+    couch_index_sup:start_link(),
+
     timer:sleep(1000),
     delete_db(),
     create_db(),
@@ -111,7 +114,7 @@ create_design_doc() ->
     couch_db:close(Db).
 
 backup_db_file() ->
-    DbFile = test_util:build_file("tmp/lib/" ++
+    DbFile = test_util:test_file("data/" ++
         binary_to_list(test_db_name()) ++ ".couch"),
     {ok, _} = file:copy(DbFile, DbFile ++ ".backup"),
     ok.
@@ -135,7 +138,7 @@ query_view_before_restore_backup() ->
     {ok, Code, _Headers, Body} = test_util:request(
         db_url() ++ "/_design/foo/_view/bar", [], get),
     etap:is(Code, 200, "Got view response before restoring backup."),
-    ViewJson = ejson:decode(Body),
+    ViewJson = couch_util:json_decode(Body),
     Rows = couch_util:get_nested_json_value(ViewJson, [<<"rows">>]),
     HasDoc1 = has_doc("doc1", Rows),
     HasDoc2 = has_doc("doc2", Rows),
@@ -157,11 +160,12 @@ has_doc(DocId1, Rows) ->
 restore_backup_db_file() ->
     couch_server_sup:stop(),
     timer:sleep(3000),
-    DbFile = test_util:build_file("tmp/lib/" ++
-        binary_to_list(test_db_name()) ++ ".couch"),
+    DbFile = test_util:test_file("data/" ++
+    binary_to_list(test_db_name()) ++ ".couch"),
     ok = file:delete(DbFile),
     ok = file:rename(DbFile ++ ".backup", DbFile),
     couch_server_sup:start_link(test_util:config_files()),
+    couch_index_sup:start_link(),
     timer:sleep(1000),
     put(port, integer_to_list(mochiweb_socket_server:get(couch_httpd, port))),
     ok.
@@ -170,7 +174,7 @@ query_view_after_restore_backup() ->
     {ok, Code, _Headers, Body} = test_util:request(
         db_url() ++ "/_design/foo/_view/bar", [], get),
     etap:is(Code, 200, "Got view response after restoring backup."),
-    ViewJson = ejson:decode(Body),
+    ViewJson = couch_util:json_decode(Body),
     Rows = couch_util:get_nested_json_value(ViewJson, [<<"rows">>]),
     HasDoc1 = has_doc("doc1", Rows),
     HasDoc2 = has_doc("doc2", Rows),

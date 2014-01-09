@@ -1,5 +1,5 @@
 BASE_DIR = $(shell pwd)
-ERLC ?= $(shell which erl)
+ERLC ?= $(shell which erlc)
 ESCRIPT ?= $(shell which escript)
 REBAR ?= $(BASE_DIR)/rebar
 OVERLAY_VARS ?=
@@ -53,5 +53,42 @@ rebar:
 rebarclean:
 	@(cd $(BASE_DIR)/support/rebar/rebar && \
 		rm -rf rebar ebin/*.beam inttest/rt.work rt.work .test)
+
+#
+# TESTS
+#
+COUCHDB_ETAP_DIR=$(BASE_DIR)/src/test/etap
+export COUCHDB_ETAP_DIR
+
+ERL_LIBS=$(BASE_DIR)/src/deps:$(BASE_DIR)/src/apps:$(BASE_DIR)/src/test/etap
+export ERL_LIBS
+
+test: deps compile testbuild
+	prove $(COUCHDB_ETAP_DIR)/*.t
+	prove $(BASE_DIR)/src/apps/couch_mrview/test/*.t
+	prove $(BASE_DIR)/src/apps/couch_replicator/test/*.t
+
+
+testbuild: testclean
+	$(ERLC) -v -o $(COUCHDB_ETAP_DIR) $(COUCHDB_ETAP_DIR)/etap.erl
+	$(ERLC) -v -o $(COUCHDB_ETAP_DIR) $(COUCHDB_ETAP_DIR)/test_web.erl
+	$(ERLC) -v -o $(COUCHDB_ETAP_DIR) $(COUCHDB_ETAP_DIR)/test_util.erl
+	$(ERLC) -v -o $(COUCHDB_ETAP_DIR) $(COUCHDB_ETAP_DIR)/mustache.erl
+	cc -DBSD_SOURCE $(COUCHDB_ETAP_DIR)/test_cfg_register.c \
+		-o $(COUCHDB_ETAP_DIR)/test_cfg_register
+	mkdir -p $(BASE_DIR)/src/test/out/data
+	mkdir -p $(BASE_DIR)/src/test/out/bin
+	mkdir -p $(BASE_DIR)/src/test/out/share
+	mkdir -p $(BASE_DIR)/src/test/out/log
+	cp $(BASE_DIR)/src/apps/couch/priv/couchjs $(BASE_DIR)/src/test/out/bin/
+	cp -r $(BASE_DIR)/src/share/server $(BASE_DIR)/src/test/out/share
+	cp -r $(BASE_DIR)/src/share/www $(BASE_DIR)/src/test/out/share
+
+
+testclean:
+	@rm -rf $(COUCHDB_ETAP_DIR)/*.beam
+	@rm -rf $(BASE_DIR)/src/test/out
+	@rm -rf $(COUCHDB_ETAP_DIR)/test_cfg_register
+	@rm -rf $(COUCHDB_ETAP_DIR)/*.o
 
 .PHONY: rebar

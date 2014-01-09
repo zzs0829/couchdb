@@ -1,5 +1,6 @@
 #!/usr/bin/env escript
 %% -*- erlang -*-
+%%! -pa ./src/deps/*/ebin -pa ./src/apps/*/ebin -pa ./src/test/etap
 
 % Licensed under the Apache License, Version 2.0 (the "License"); you may not
 % use this file except in compliance with the License. You may obtain a copy of
@@ -14,13 +15,13 @@
 % the License.
 
 default_config() ->
-    test_util:build_file("etc/couchdb/default_dev.ini").
+    test_util:test_file("couch_test.ini").
 
 local_config_1() ->
-    test_util:source_file("test/etap/081-config-override.1.ini").
+    test_util:build_file("test/etap/081-config-override.1.ini").
 
 local_config_2() ->
-    test_util:source_file("test/etap/081-config-override.2.ini").
+    test_util:build_file("test/etap/081-config-override.2.ini").
 
 local_config_write() ->
     test_util:build_file("test/etap/temp.081").
@@ -65,8 +66,8 @@ test() ->
 
         etap:is(
             couch_config:get("httpd","port"),
-            "5984",
-            "{httpd, port} is 5984 by default"
+            "0",
+            "{httpd, port} is 0 by default"
         ),
 
         etap:is(
@@ -143,8 +144,8 @@ test() ->
     CheckCanWrite = fun() ->
         etap:is(
             couch_config:get("httpd", "port"),
-            "5984",
-            "{httpd, port} is still 5984 by default"
+            "0",
+            "{httpd, port} is still 0 by default"
         ),
 
         etap:is(
@@ -179,13 +180,13 @@ test() ->
     CheckDidntWrite = fun() ->
         etap:is(
             couch_config:get("httpd", "port"),
-            "5984",
+            "0",
             "{httpd, port} was not persisted to the primary INI file."
         ),
 
         etap:is(
             couch_config:get("httpd", "bind_address"),
-            "127.0.0.1",
+            "0.0.0.0",
             "{httpd, bind_address} was not deleted form the primary INI file."
         )
     end,

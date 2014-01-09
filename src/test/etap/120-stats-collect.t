@@ -1,5 +1,6 @@
 #!/usr/bin/env escript
 %% -*- erlang -*-
+%%! -pa ./src/deps/*/ebin -pa ./src/apps/*/ebin -pa ./src/test/etap
 
 % Licensed under the Apache License, Version 2.0 (the "License"); you may not
 % use this file except in compliance with the License. You may obtain a copy of
@@ -63,7 +64,7 @@ test_abs_values() ->
         lists:seq(1, 15),
         "Absolute values are recorded correctly."
     ),
-    
+
     couch_stats_collector:clear(bar),
     etap:is(
         couch_stats_collector:get(bar),
@@ -86,7 +87,7 @@ test_proc_counting() ->
         1,
         "track_process_count increments the counter."
     ),
-    
+
     TwicePid = spawn(fun() ->
         couch_stats_collector:track_process_count(hoopla),
         couch_stats_collector:track_process_count(hoopla),
@@ -100,7 +101,7 @@ test_proc_counting() ->
         3,
         "track_process_count allows more than one incrememnt per Pid"
     ),
-    
+
     OnePid ! sepuku,
     receive {'DOWN', R1, _, _, _} -> ok end,
     timer:sleep(250),
@@ -109,7 +110,7 @@ test_proc_counting() ->
         2,
         "Process count is decremented when process exits."
     ),
-    
+
     TwicePid ! sepuku,
     receive {'DOWN', R2, _, _, _} -> ok end,
     timer:sleep(250),
@@ -128,13 +129,13 @@ test_all() ->
         [ {bar,[1.0,0.0]}, {foo,0}, { hoopla,0} ],
         "all/0 returns all counters and absolute values."
     ),
-    
+
     etap:is(
         lists:sort(couch_stats_collector:all(incremental)),
         [ {foo, 0}, {hoopla, 0} ],
         "all/1 returns only the specified type."
     ),
-    
+
     couch_stats_collector:record(zing, 90),
     etap:is(
         lists:sort(couch_stats_collector:all(absolute)),

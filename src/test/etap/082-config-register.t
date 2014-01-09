@@ -1,5 +1,6 @@
 #!/usr/bin/env escript
 %% -*- erlang -*-
+%%! -pa ./src/deps/*/ebin -pa ./src/apps/*/ebin -pa ./src/test/etap
 
 % Licensed under the Apache License, Version 2.0 (the "License"); you may not
 % use this file except in compliance with the License. You may obtain a copy of
@@ -14,7 +15,7 @@
 % the License.
 
 default_config() ->
-    test_util:build_file("etc/couchdb/default_dev.ini").
+    test_util:test_file("couch_test.ini").
 
 main(_) ->
     test_util:init_code_path(),
@@ -33,8 +34,8 @@ test() ->
 
     etap:is(
         couch_config:get("httpd", "port"),
-        "5984",
-        "{httpd, port} is 5984 by default."
+        "0",
+        "{httpd, port} is 0 by default."
     ),
 
     ok = couch_config:set("httpd", "port", "4895", false),
@@ -64,7 +65,7 @@ test() ->
     % Implicitly checking that we *don't* call the function
     etap:is(
         couch_config:get("httpd", "bind_address"),
-        "127.0.0.1",
+        "0.0.0.0",
         "{httpd, bind_address} is not '0.0.0.0'"
     ),
     ok = couch_config:set("httpd", "bind_address", "0.0.0.0", false),

@@ -1,5 +1,6 @@
 #!/usr/bin/env escript
 %% -*- erlang -*-
+%%! -pa ./src/deps/*/ebin -pa ./src/apps/*/ebin -pa ./src/test/etap
 
 % Licensed under the Apache License, Version 2.0 (the "License"); you may not
 % use this file except in compliance with the License. You may obtain a copy of
@@ -94,7 +95,7 @@ test() ->
     erlang:monitor(process, ChildPid1),
     ChildPid1 ! close,
     wait(),
-    
+
     CheckFun = fun
         (Iter, nil) ->
             case couch_ref_counter:count(RefCtr) of

@@ -1,5 +1,7 @@
 #!/usr/bin/env escript
 %% -*- erlang -*-
+%%! -pa ./src/deps/*/ebin -pa ./src/apps/*/ebin -pa ./src/test/etap
+
 % Licensed under the Apache License, Version 2.0 (the "License"); you may not
 % use this file except in compliance with the License. You may obtain a copy of
 % the License at
@@ -28,6 +30,7 @@ main(_) ->
 
 test() ->
     couch_server_sup:start_link(test_util:config_files()),
+    couch_index_sup:start_link(),
 
     % commit sofort
     ok = couch_config:set("query_server_config", "commit_freq", "0"),
@@ -38,7 +41,7 @@ test() ->
     ok.
 
 fixture_path() ->
-    test_util:source_file("test/etap/fixtures").
+    test_util:build_file("test/etap/fixtures").
 
 old_db() ->
     fixture_path() ++ "/" ++ old_db_name().
