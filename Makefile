@@ -2,7 +2,6 @@ BASE_DIR = $(shell pwd)
 SUPPORT_DIR=$(BASE_DIR)/src/support
 ERLC ?= $(shell which erlc)
 ESCRIPT ?= $(shell which escript)
-REBAR = $(BASE_DIR)/rebar
 OVERLAY_VARS ?=
 PACKAGE_NAME=apache-couchdb
 RELDIR=$(BASE_DIR)/rel/$(PACKAGE_NAME)
@@ -29,18 +28,18 @@ export USE_STATIC_ICU
 all: deps compile
 
 compile:
-	@$(REBAR) compile
+	@$(BASE_DIR)/rebar compile
 
 deps: rebar
-	@$(REBAR) get-deps
+	@$(BASE_DIR)/rebar get-deps
 
 clean: docclean
-	@$(REBAR) clean
+	@$(BASE_DIR)/rebar clean
 
 distclean: clean rebarclean relclean
 
 generate:
-	@$(REBAR) generate $(OVERLAY_VARS)
+	@$(BASE_DIR)/rebar generate $(OVERLAY_VARS)
 
 rel: generate
 
