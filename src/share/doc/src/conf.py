@@ -12,7 +12,9 @@
 
 import datetime
 import os
+import json
 import re
+import subprocess
 import sys
 
 sys.path.insert(0, os.path.abspath('../ext'))
@@ -20,57 +22,49 @@ sys.path.insert(0, os.path.abspath('../ext'))
 extensions = ["sphinx.ext.todo", "sphinx.ext.extlinks", 'github',
               'httpdomain', 'configdomain']
 
-_info = {}
-_regex = re.compile('m4_define\(\[(.+)\],\s+\[(.+)\]\)')
-_acinclude_m4 = '../../../acinclude.m4'
-_acinclude_m4_in = '../../../acinclude.m4.in'
-if os.path.exists(_acinclude_m4):
-    _source = _acinclude_m4
-elif os.path.exists(_acinclude_m4_in):
-    _source = _acinclude_m4_in
-else:
-    _source = None
-if _source is not None:
-    _info = dict(_regex.findall(open(_source).read()))
-else:
-    raise ValueError('''Project information source wasn't found. We're assume
-that it's located within "acinclude.m4" file at the root of the project, but
-looks like there is no such file there.''')
+
+# read packagesinfos
+_source = "../../../../pkg.vars.config"
+_cmd = "../../../support/doc/config_to_json.escript"
+_output = subprocess.check_output([_cmd, _source])
+_info = json.loads(_output)
+
 
 source_suffix = ".rst"
 
 nitpicky = True
 
-version = '.'.join([
-    _info['LOCAL_VERSION_MAJOR'],
-    _info['LOCAL_VERSION_MINOR']
-])
+version = "%s.%s" % (
+        _info['version_major'],
+        _info['version_minor']
+)
 
-release = '.'.join([
-    _info['LOCAL_VERSION_MAJOR'],
-    _info['LOCAL_VERSION_MINOR'],
-    _info['LOCAL_VERSION_REVISION']
-])
+release = "%s.%s.%s" % (
+        _info['version_major'],
+        _info['version_minor'],
+        _info['version_revision']
+)
 
-if _info.get('LOCAL_VERSION_RELEASE') == '.%revision%':
+print(release)
+if _info.get('version_release') == '.%revision%':
     release += '-dev'
-elif _info.get('LOCAL_VERSION_RELEASE'):
+elif _info.get('version_release'):
     # jenkins hack, the release name is too long or uses
     # characters that cause pain down the road. Example:
     # 1.6.0+build.jenkins-ERLANG_VERSION=R14B04,label=Mac-OS-10-8-2-832-76-g2996574
     # which breaks the LaTeX PDF build. Let’s strip this
     # down to the git hash at the end.
-    if 'jenkins' in _info['LOCAL_VERSION_RELEASE']:
-        release += _info['LOCAL_VERSION_RELEASE'][-9:]
+    if 'jenkins' in _info['version_release']:
+        release += _info['version_release'][-9:]
     else: # regular case
-        release += _info['LOCAL_VERSION_STAGE'] + _info['LOCAL_VERSION_RELEASE']
+        release += _info['version_stage'] + _info['version_release']
 
 
-project = _info['LOCAL_PACKAGE_NAME']
+project = _info['vendor_name']
 
 copyright = '%d, %s' % (
     datetime.datetime.now().year,
-    _info['LOCAL_PACKAGE_AUTHOR_NAME']
+    _info['vendor_contact_name']
 )
 
 highlight_language = "json"
@@ -145,7 +139,7 @@ texinfo_documents = [(
 )]
 
 extlinks = {
-    'issue': ('%s-%%s' % _info['LOCAL_BUG_URI'], 'COUCHDB-'),
+    'issue': ('%s-%%s' % _info['package_bugreport'], 'COUCHDB-'),
     'commit': ('https://git-wip-us.apache.org/repos/asf?p=couchdb.git;a=commit;h=%s', '#')
 }
 
@@ -155,4 +149,4 @@ html_context['git_branch'] = github_branch = 'master'
 
 github_docs_path = 'share/doc/src'
 
-del _info, _regex, _acinclude_m4, _acinclude_m4_in, _source
+del _info, _source, _cmd, _output

@@ -1,8 +1,12 @@
 BASE_DIR = $(shell pwd)
+SUPPORT_DIR=$(BASE_DIR)/src/support
 ERLC ?= $(shell which erlc)
 ESCRIPT ?= $(shell which escript)
-REBAR ?= $(BASE_DIR)/rebar
+REBAR = $(BASE_DIR)/rebar
 OVERLAY_VARS ?=
+PACKAGE_NAME=apache-couchdb
+RELDIR=$(BASE_DIR)/rel/$(PACKAGE_NAME)
+
 
 $(if $(ERLC),,$(warning "Warning: No Erlang found in your path, this will probably not work"))
 
@@ -30,7 +34,7 @@ compile:
 deps: rebar
 	@$(REBAR) get-deps
 
-clean:
+clean: docclean
 	@$(REBAR) clean
 
 distclean: clean rebarclean relclean
@@ -40,7 +44,7 @@ generate:
 
 rel: generate
 
-relclean:
+relclean: reldocclean
 	@rm -rf rel/apache-couchdb
 
 check: test testjs
@@ -59,6 +63,51 @@ rebar:
 rebarclean:
 	@(cd $(BASE_DIR)/support/rebar/rebar && \
 		rm -rf rebar ebin/*.beam inttest/rt.work rt.work .test)
+
+#
+# DOCS
+#
+
+DOC_SRCDIR=$(BASE_DIR)/src/share/doc/src
+DOC_BUILDDIR=$(BASE_DIR)/src/share/doc/build
+DOC_RELDIR=$(RELDIR)/share/doc
+SPHINXOPTS = -n -c $(DOC_SRCDIR) \
+			 -A local=1 \
+			 $(DOC_SRCDIR)
+
+reldoc: reldocclean doc
+	mkdir -p $(DOC_RELDIR)
+	cp -r $(DOC_BUILDDIR)/html $(DOC_RELDIR)
+	cp -r $(DOC_BUILDDIR)/latex/CouchDB.pdf $(DOC_RELDIR)
+	cp -r $(DOC_BUILDDIR)/texinfo/CouchDB.info $(DOC_RELDIR)
+
+doc: html pdf texinfo
+
+html:
+	@mkdir -p $(DOC_BUILDDIR)
+	$(SUPPORT_DIR)/doc/sphinx-build \
+		-b html $(SPHINXOPTS) $(DOC_BUILDDIR)/html
+
+pdf:
+	@mkdir -p $(DOC_BUILDDIR)
+	$(SUPPORT_DIR)/doc/sphinx-build \
+		-b latex $(SPHINXOPTS) $(DOC_BUILDDIR)/latex
+	$(MAKE) -C $(DOC_BUILDDIR)/latex all-pdf
+
+texinfo:
+	@mkdir -p $(DOC_BUILDDIR)
+	$(SUPPORT_DIR)/doc/sphinx-build \
+		-b texinfo $(SPHINXOPTS) $(DOC_BUILDDIR)/texinfo
+	$(MAKE) -C $(DOC_BUILDDIR)/texinfo info
+
+docclean:
+	rm -rf $(DOC_BUILDDIR)/textinfo
+	rm -rf $(DOC_BUILDDIR)/latex
+	rm -rf $(DOC_BUILDDIR)/html
+	rm -rf $(DOC_BUILDDIR)/doctrees
+
+reldocclean:
+	rm -rf $(DOC_RELDIR)
 
 #
 # TESTS
