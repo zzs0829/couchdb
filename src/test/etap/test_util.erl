@@ -107,7 +107,7 @@ test_file(Name) ->
 config_files() ->
     [
         filename:join([testdir(), "couch_test.ini"]),
-        filename:join([builddir(), "etc", "couchdb", "local.ini"])
+        filename:join([testdir(), "local.ini"])
     ].
 
 

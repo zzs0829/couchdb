@@ -43,6 +43,12 @@ rel: generate
 relclean:
 	@rm -rf rel/apache-couchdb
 
+check: test testjs
+
+#
+# rebar
+#
+
 rebar:
 	@(test ! -e $(BASE_DIR)/src/support/rebar/rebar && \
 		echo "==> build rebar" && \
@@ -63,15 +69,18 @@ export COUCHDB_ETAP_DIR
 ERL_LIBS=$(BASE_DIR)/src/deps:$(BASE_DIR)/src/apps:$(BASE_DIR)/src/test/etap
 export ERL_LIBS
 
-test: deps compile testbuild
+test: testbuild
 	prove $(COUCHDB_ETAP_DIR)/*.t
 	prove $(BASE_DIR)/src/apps/couch_mrview/test/*.t
 	prove $(BASE_DIR)/src/apps/couch_replicator/test/*.t
 
-verbose-test: deps compile testbuild
+verbose-test: testbuild
 	prove -v $(COUCHDB_ETAP_DIR)/*.t
 	prove -v $(BASE_DIR)/src/apps/couch_mrview/test/*.t
 	prove -v $(BASE_DIR)/src/apps/couch_replicator/test/*.t
+
+testjs: testbuild
+	$(ESCRIPT) $(BASE_DIR)/src/test/javascript/test_js.escript
 
 testbuild: testclean
 	$(ERLC) -v -o $(COUCHDB_ETAP_DIR) $(COUCHDB_ETAP_DIR)/etap.erl
@@ -87,7 +96,7 @@ testbuild: testclean
 	cp $(BASE_DIR)/src/apps/couch/priv/couchjs $(BASE_DIR)/src/test/out/bin/
 	cp -r $(BASE_DIR)/src/share/server $(BASE_DIR)/src/test/out/share
 	cp -r $(BASE_DIR)/src/share/www $(BASE_DIR)/src/test/out/share
-
+	cp $(BASE_DIR)/src/etc/couchdb/local.ini $(BASE_DIR)/src/test/out/
 
 testclean:
 	@rm -rf $(COUCHDB_ETAP_DIR)/*.beam
