@@ -30,6 +30,7 @@ main(_) ->
 
 test() ->
     couch_server_sup:start_link(test_util:config_files()),
+    couch_httpd_sup:start_link(),
 
     % commit sofort
     ok = couch_config:set("query_server_config", "commit_freq", "0"),
@@ -64,7 +65,7 @@ addr() ->
     couch_config:get("httpd", "bind_address", "127.0.0.1").
 
 port() ->
-    integer_to_list(mochiweb_socket_server:get(couch_httpd, port)).
+    integer_to_list(mochiweb_socket_server:get(couch_http, port)).
 
 
 % <= 1.2.x

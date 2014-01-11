@@ -11,10 +11,9 @@
 % the License.
 
 -module(couch_httpd).
--include("couch_db.hrl").
+-include_lib("couch/include/couch_db.hrl").
 
--export([start_link/0, start_link/1, stop/0, config_change/2,
-        handle_request/5]).
+-export([start_link/1,  handle_request/5]).
 
 -export([header_value/2,header_value/3,qs_value/2,qs_value/3,qs/1,qs_json_value/3]).
 -export([path/1,absolute_uri/2,body_length/1]).
@@ -32,12 +31,11 @@
 -export([accepted_encodings/1,handle_request_int/5,validate_referer/1,validate_ctype/2]).
 -export([http_1_0_keep_alive/2]).
 
-start_link() ->
-    start_link(http).
-start_link(http) ->
+
+start_link(couch_http) ->
     Port = couch_config:get("httpd", "port", "5984"),
-    start_link(?MODULE, [{port, Port}]);
-start_link(https) ->
+    start_link(couch_http, [{port, Port}]);
+start_link(couch_https) ->
     Port = couch_config:get("ssl", "port", "6984"),
     CertFile = couch_config:get("ssl", "cert_file", nil),
     KeyFile = couch_config:get("ssl", "key_file", nil),
@@ -90,7 +88,7 @@ start_link(https) ->
             io:format("SSL enabled but PEM certificates are missing.", []),
             throw({error, missing_certs})
     end,
-    start_link(https, Options).
+    start_link(couch_https, Options).
 start_link(Name, Options) ->
     % read config and register for configuration changes
 
@@ -152,40 +150,7 @@ start_link(Name, Options) ->
             {ip, BindAddress}]]),
 
     % launch mochiweb
-    {ok, Pid} = case mochiweb_http:start(FinalOptions) of
-        {ok, MochiPid} ->
-            {ok, MochiPid};
-        {error, Reason} ->
-            io:format("Failure to start Mochiweb: ~s~n",[Reason]),
-            throw({error, Reason})
-    end,
-
-    ok = couch_config:register(fun ?MODULE:config_change/2, Pid),
-    {ok, Pid}.
-
-
-stop() ->
-    mochiweb_http:stop(couch_httpd),
-    mochiweb_http:stop(https).
-
-config_change("httpd", "bind_address") ->
-    ?MODULE:stop();
-config_change("httpd", "port") ->
-    ?MODULE:stop();
-config_change("httpd", "default_handler") ->
-    ?MODULE:stop();
-config_change("httpd", "server_options") ->
-    ?MODULE:stop();
-config_change("httpd", "socket_options") ->
-    ?MODULE:stop();
-config_change("httpd", "authentication_handlers") ->
-    set_auth_handlers();
-config_change("httpd_global_handlers", _) ->
-    ?MODULE:stop();
-config_change("httpd_db_handlers", _) ->
-    ?MODULE:stop();
-config_change("ssl", _) ->
-    ?MODULE:stop().
+    mochiweb_http:start_link(FinalOptions).
 
 set_auth_handlers() ->
     AuthenticationSrcs = make_fun_spec_strs(

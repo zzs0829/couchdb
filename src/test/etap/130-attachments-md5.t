@@ -42,10 +42,11 @@ main(_) ->
 
 test() ->
     couch_server_sup:start_link(test_util:config_files()),
+    couch_httpd_sup:start_link(),
 
     Addr = couch_config:get("httpd", "bind_address", any),
     put(addr, Addr),
-    put(port, mochiweb_socket_server:get(couch_httpd, port)),
+    put(port, mochiweb_socket_server:get(couch_http, port)),
     timer:sleep(1000),
 
     couch_server:delete(test_db_name(), []),

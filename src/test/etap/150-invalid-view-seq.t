@@ -41,6 +41,8 @@ main(_) ->
 %%
 test() ->
     couch_server_sup:start_link(test_util:config_files()),
+    couch_httpd_sup:start_link(),
+
     timer:sleep(1000),
     delete_db(),
     create_db(),
@@ -52,7 +54,7 @@ test() ->
     backup_db_file(),
 
     put(addr, couch_config:get("httpd", "bind_address", "127.0.0.1")),
-    put(port, integer_to_list(mochiweb_socket_server:get(couch_httpd, port))),
+    put(port, integer_to_list(mochiweb_socket_server:get(couch_http, port))),
 
     create_new_doc(),
     query_view_before_restore_backup(),
@@ -164,7 +166,7 @@ restore_backup_db_file() ->
     ok = file:rename(DbFile ++ ".backup", DbFile),
     couch_server_sup:start_link(test_util:config_files()),
     timer:sleep(1000),
-    put(port, integer_to_list(mochiweb_socket_server:get(couch_httpd, port))),
+    put(port, integer_to_list(mochiweb_socket_server:get(couch_http, port))),
     ok.
 
 query_view_after_restore_backup() ->

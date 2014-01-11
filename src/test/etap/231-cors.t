@@ -25,7 +25,7 @@
 server() ->
     lists:concat([
         "http://127.0.0.1:",
-        mochiweb_socket_server:get(couch_httpd, port),
+        mochiweb_socket_server:get(couch_http, port),
         "/"
     ]).
 
@@ -65,6 +65,7 @@ test() ->
 
     %% launch couchdb
     couch_server_sup:start_link(test_util:config_files()),
+    couch_httpd_sup:start_link(),
 
     %% initialize db
     timer:sleep(1000),

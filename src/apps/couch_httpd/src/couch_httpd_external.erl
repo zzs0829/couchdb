@@ -18,7 +18,7 @@
 
 -import(couch_httpd,[send_error/4]).
 
--include("couch_db.hrl").
+-include_lib("couch/include/couch_db.hrl").
 
 % handle_external_req/2
 % for the old type of config usage:
@@ -79,7 +79,7 @@ json_req_obj(#httpd{mochi_req=Req,
     Headers = Req:get(headers),
     Hlist = mochiweb_headers:to_list(Headers),
     {ok, Info} = couch_db:get_db_info(Db),
-    
+
 % add headers...
     {[{<<"info">>, {Info}},
         {<<"id">>, DocId},

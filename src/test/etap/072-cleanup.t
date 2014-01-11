@@ -41,6 +41,7 @@ main(_) ->
 
 test() ->
     {ok, _} = couch_server_sup:start_link(test_util:config_files()),
+    couch_httpd_sup:start_link(),
 
     couch_server:delete(?TEST_DB, []),
     timer:sleep(1000),
@@ -105,7 +106,7 @@ delete_design_doc(DDName, Rev) ->
 
 db_url() ->
     Addr = couch_config:get("httpd", "bind_address", "127.0.0.1"),
-    Port = integer_to_list(mochiweb_socket_server:get(couch_httpd, port)),
+    Port = integer_to_list(mochiweb_socket_server:get(couch_http, port)),
     "http://" ++ Addr ++ ":" ++ Port ++ "/" ++
         binary_to_list(?TEST_DB).
 

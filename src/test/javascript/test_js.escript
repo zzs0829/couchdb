@@ -122,11 +122,14 @@ start_couch() ->
     application:set_env(couch, config_files, IniFiles),
     couch_util:start_app_deps(couch),
     application:start(couch),
+    couch_util:start_app_deps(couch_httpd),
+    application:start(couch_httpd),
     couch_util:start_app_deps(couch_replicator),
     application:start(couch_replicator).
 
 stop_couch() ->
     application:stop(couch_replicator),
+    application:stop(couch_httpd),
     application:stop(couch).
 
 restart_couch() ->

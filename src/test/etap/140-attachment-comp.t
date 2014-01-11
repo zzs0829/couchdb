@@ -32,9 +32,11 @@ main(_) ->
 
 test() ->
     couch_server_sup:start_link(test_util:config_files()),
+    couch_httpd_sup:start_link(),
 
     erlang:put(addr, couch_config:get("httpd", "bind_address", "127.0.0.1")),
-    erlang:put(port, integer_to_list(mochiweb_socket_server:get(couch_httpd, port))),
+    erlang:put(port, integer_to_list(mochiweb_socket_server:get(couch_http,
+                                                                port))),
     timer:sleep(1000),
     couch_server:delete(test_db_name(), []),
     couch_db:create(test_db_name(), []),
