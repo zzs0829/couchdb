@@ -129,8 +129,10 @@ start_couch() ->
 
 stop_couch() ->
     application:stop(couch_replicator),
+    timer:sleep(1000),
     application:stop(couch_httpd),
-    application:stop(couch).
+    application:stop(couch),
+    application:stop(os_mon).
 
 restart_couch() ->
     stop_couch(),
@@ -191,16 +193,18 @@ test(TestDir, Files) ->
     NSuccess = length(Success),
     Count = NFailed + NSuccess,
 
-    io:format("==> javascript tests results.~n~n", []),
+    io:format("~n==> javascript tests results.~n~n", []),
     lists:foreach(fun({Name, Status}) ->
                 io:format("~s ... ~s~n", [Name, Status])
         end, lists:usort(Failed ++ Success)),
 
     case NFailed of
         0 ->
-            io:format("~nAll tests successful.~nTests: ~p~n", [Count]);
+            io:format("~nAll tests successful.~nTests: ~p~n", [Count]),
+            halt(0);
         _ ->
-            io:format("~n~p/~p tests failed~n", [NFailed, Count])
+            io:format("~n~p/~p tests failed~n", [NFailed, Count]),
+            halt(1)
     end.
 main([]) ->
     TestDir = filename:join([scriptdir(), "test"]),
