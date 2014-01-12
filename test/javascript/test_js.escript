@@ -161,7 +161,8 @@ exec(Path) ->
                     Acc;
                 ("OK", _Acc) ->
                     ok;
-                (_, Acc) ->
+                (_Else, Acc) ->
+                    io:format("got else ~p~n", [_Else]),
                     Acc
             end, fail, Lines),
     io:format("~s ... ~s~n", [filename:basename(Path), Result]),
@@ -178,25 +179,29 @@ test(TestDir, Files) ->
                 Path = filename:join([TestDir, Name]),
                 Result = exec(Path),
                 case Result of
-                    ok-> {FAILs, [Name | OKs]};
-                    _ -> {[Name | FAILs], OKs}
+                    ok-> {FAILs, [{Name, ok} | OKs]};
+                    _ -> {[{Name, fail} | FAILs], OKs}
                 end
 
         end, {[], []}, Files),
 
+    stop_couch(),
+
     NFailed = length(Failed),
     NSuccess = length(Success),
     Count = NFailed + NSuccess,
+
+    io:format("==> javascript tests results.~n~n", []),
+    lists:foreach(fun({Name, Status}) ->
+                io:format("~s ... ~s~n", [Name, Status])
+        end, lists:usort(Failed ++ Success)),
 
     case NFailed of
         0 ->
             io:format("~nAll tests successful.~nTests: ~p~n", [Count]);
         _ ->
             io:format("~n~p/~p tests failed~n", [NFailed, Count])
-    end,
-
-    stop_couch().
-
+    end.
 main([]) ->
     TestDir = filename:join([scriptdir(), "test"]),
     test(TestDir, filelib:wildcard("*.js", TestDir));
