@@ -118,6 +118,10 @@ init_code_path() ->
 start_couch() ->
     ok = init_code_path(),
     IniFiles = config_files(),
+
+    application:load(sasl),
+    application:set_env(sasl, errlog_type, error),
+
     application:load(couch),
     application:set_env(couch, config_files, IniFiles),
     couch_util:start_app_deps(couch),
