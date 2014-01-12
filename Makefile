@@ -1,5 +1,5 @@
 BASE_DIR = $(shell pwd)
-SUPPORT_DIR=$(BASE_DIR)/src/support
+SUPPORT_DIR=$(BASE_DIR)/support
 ERLC ?= $(shell which erlc)
 ESCRIPT ?= $(shell which escript)
 OVERLAY_VARS ?=
@@ -53,11 +53,11 @@ check: test testjs
 #
 
 rebar:
-	@(test ! -e $(BASE_DIR)/src/support/rebar/rebar && \
+	@(test ! -e $(BASE_DIR)/support/rebar/rebar && \
 		echo "==> build rebar" && \
-		cd $(BASE_DIR)/src/support/rebar && \
+		cd $(BASE_DIR)/support/rebar && \
 		$(ESCRIPT) bootstrap || true)
-	@cp $(BASE_DIR)/src/support/rebar/rebar $(BASE_DIR)/rebar
+	@cp $(BASE_DIR)/support/rebar/rebar $(BASE_DIR)/rebar
 
 rebarclean:
 	@(cd $(BASE_DIR)/support/rebar/rebar && \
@@ -67,8 +67,8 @@ rebarclean:
 # DOCS
 #
 
-DOC_SRCDIR=$(BASE_DIR)/src/share/doc/src
-DOC_BUILDDIR=$(BASE_DIR)/src/share/doc/build
+DOC_SRCDIR=$(BASE_DIR)/share/doc/src
+DOC_BUILDDIR=$(BASE_DIR)/share/doc/build
 DOC_RELDIR=$(RELDIR)/share/doc
 SPHINXOPTS = -n -c $(DOC_SRCDIR) \
 			 -A local=1 \
@@ -111,24 +111,24 @@ reldocclean:
 #
 # TESTS
 #
-COUCHDB_ETAP_DIR=$(BASE_DIR)/src/test/etap
+COUCHDB_ETAP_DIR=$(BASE_DIR)/test/etap
 export COUCHDB_ETAP_DIR
 
-ERL_LIBS=$(BASE_DIR)/src/deps:$(BASE_DIR)/src/apps:$(BASE_DIR)/src/test/etap
+ERL_LIBS=$(BASE_DIR)/deps:$(BASE_DIR)/apps:$(BASE_DIR)/test/etap
 export ERL_LIBS
 
 test: testbuild
 	prove $(COUCHDB_ETAP_DIR)/*.t
-	prove $(BASE_DIR)/src/apps/couch_mrview/test/*.t
-	prove $(BASE_DIR)/src/apps/couch_replicator/test/*.t
+	prove $(BASE_DIR)/apps/couch_mrview/test/*.t
+	prove $(BASE_DIR)/apps/couch_replicator/test/*.t
 
 verbose-test: testbuild
 	prove -v $(COUCHDB_ETAP_DIR)/*.t
-	prove -v $(BASE_DIR)/src/apps/couch_mrview/test/*.t
-	prove -v $(BASE_DIR)/src/apps/couch_replicator/test/*.t
+	prove -v $(BASE_DIR)/apps/couch_mrview/test/*.t
+	prove -v $(BASE_DIR)/apps/couch_replicator/test/*.t
 
 testjs: testbuild
-	$(ESCRIPT) $(BASE_DIR)/src/test/javascript/test_js.escript
+	$(ESCRIPT) $(BASE_DIR)/test/javascript/test_js.escript
 
 testbuild: testclean
 	$(ERLC) -v -o $(COUCHDB_ETAP_DIR) $(COUCHDB_ETAP_DIR)/etap.erl
@@ -137,18 +137,18 @@ testbuild: testclean
 	$(ERLC) -v -o $(COUCHDB_ETAP_DIR) $(COUCHDB_ETAP_DIR)/mustache.erl
 	cc -DBSD_SOURCE $(COUCHDB_ETAP_DIR)/test_cfg_register.c \
 		-o $(COUCHDB_ETAP_DIR)/test_cfg_register
-	mkdir -p $(BASE_DIR)/src/test/out/data
-	mkdir -p $(BASE_DIR)/src/test/out/bin
-	mkdir -p $(BASE_DIR)/src/test/out/share
-	mkdir -p $(BASE_DIR)/src/test/out/log
-	cp $(BASE_DIR)/src/apps/couch/priv/couchjs $(BASE_DIR)/src/test/out/bin/
-	cp -r $(BASE_DIR)/src/share/server $(BASE_DIR)/src/test/out/share
-	cp -r $(BASE_DIR)/src/share/www $(BASE_DIR)/src/test/out/share
-	cp $(BASE_DIR)/src/etc/couchdb/local.ini $(BASE_DIR)/src/test/out/
+	mkdir -p $(BASE_DIR)/test/out/data
+	mkdir -p $(BASE_DIR)/test/out/bin
+	mkdir -p $(BASE_DIR)/test/out/share
+	mkdir -p $(BASE_DIR)/test/out/log
+	cp $(BASE_DIR)/apps/couch/priv/couchjs $(BASE_DIR)/test/out/bin/
+	cp -r $(BASE_DIR)/share/server $(BASE_DIR)/test/out/share
+	cp -r $(BASE_DIR)/share/www $(BASE_DIR)/test/out/share
+	cp $(BASE_DIR)/etc/couchdb/local.ini $(BASE_DIR)/test/out/
 
 testclean:
 	@rm -rf $(COUCHDB_ETAP_DIR)/*.beam
-	@rm -rf $(BASE_DIR)/src/test/out
+	@rm -rf $(BASE_DIR)/test/out
 	@rm -rf $(COUCHDB_ETAP_DIR)/test_cfg_register
 	@rm -rf $(COUCHDB_ETAP_DIR)/*.o
 

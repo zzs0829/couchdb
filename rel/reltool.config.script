@@ -42,7 +42,7 @@ CouchJSName = proplists:get_value(couchjs_name, Cfg, "couchjs"),
 
 [
     {sys, [
-            {lib_dirs, ["../src/deps", "../src/apps"]},
+            {lib_dirs, ["../deps", "../apps"]},
             {rel, "couchdb", Vsn,
                 [
                     kernel,
@@ -101,33 +101,33 @@ CouchJSName = proplists:get_value(couchjs_name, Cfg, "couchjs"),
         {mkdir, "data"},
 
         %% keep empty files
-        {copy, "../src/etc/couchdb/empty", "log/KEEP"},
-        {copy, "../src/etc/couchdb/empty", "data/KEEP"},
+        {copy, "../etc/couchdb/empty", "log/KEEP"},
+        {copy, "../etc/couchdb/empty", "data/KEEP"},
 
         %% Copy base files for starting and interacting w/ node
-        {copy, "../src/deps/node_package/priv/base/erl", "{{erts_vsn}}/bin/erl"},
-        {copy, "../src/deps/node_package/priv/base/nodetool", "{{erts_vsn}}/bin/nodetool"},
-        {template, "../src/deps/node_package/priv/base/runner", "bin/couchdb"},
-        {template, "../src/deps/node_package/priv/base/env.sh", "lib/env.sh"},
-        {template, "../src/deps/node_package/priv/base/app_epath.sh", "lib/app_epath.sh"},
+        {copy, "../deps/node_package/priv/base/erl", "{{erts_vsn}}/bin/erl"},
+        {copy, "../deps/node_package/priv/base/nodetool", "{{erts_vsn}}/bin/nodetool"},
+        {template, "../deps/node_package/priv/base/runner", "bin/couchdb"},
+        {template, "../deps/node_package/priv/base/env.sh", "lib/env.sh"},
+        {template, "../deps/node_package/priv/base/app_epath.sh", "lib/app_epath.sh"},
 
         %% config files
-        {template, "../src/etc/couchdb/app.config", "etc/app.config"},
-        {template, "../src/etc/couchdb/vm.args", "etc/vm.args"},
-        {template, "../src/etc/couchdb/couch.ini", "etc/couch.ini"},
-        {template, "../src/etc/couchdb/local.ini", "etc/local.ini"},
+        {template, "../etc/couchdb/app.config", "etc/app.config"},
+        {template, "../etc/couchdb/vm.args", "etc/vm.args"},
+        {template, "../etc/couchdb/couch.ini", "etc/couch.ini"},
+        {template, "../etc/couchdb/local.ini", "etc/local.ini"},
 
         %% couchdb data files
         {mkdir, "share"},
         {mkdir, "share/server"},
-        {copy, "../src/share/server/main.js", "share/server"},
-        {copy, "../src/share/server/main-coffee.js", "share/server"},
-        {copy, "../src/share/www", "share"},
-        {copy, "../src/apps/couch/priv/" ++ CouchJSName, "bin/" ++ CouchJSName},
+        {copy, "../share/server/main.js", "share/server"},
+        {copy, "../share/server/main-coffee.js", "share/server"},
+        {copy, "../share/www", "share"},
+        {copy, "../apps/couch/priv/" ++ CouchJSName, "bin/" ++ CouchJSName},
 
         %% misc
         {mkdir, "lib/couch-patches"},
-        {copy, "../src/support/couch_rel/ebin/etop_txt.beam", "lib/couch-patches"}
+        {copy, "../support/couch_rel/ebin/etop_txt.beam", "lib/couch-patches"}
 
     ]}
 ].
