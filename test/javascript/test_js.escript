@@ -115,17 +115,23 @@ init_code_path() ->
     %% init config
     init_config().
 
-start_couch() ->
+start_couch(Verbose) ->
     ok = init_code_path(),
     IniFiles = config_files(),
 
     application:load(sasl),
+    %% disable sasl logging
     application:set_env(sasl, errlog_type, error),
+    application:set_env(sasl, sasl_error_logger, false),
 
+    %% start couch
     application:load(couch),
     application:set_env(couch, config_files, IniFiles),
     couch_util:start_app_deps(couch),
     application:start(couch),
+    %% set couch log level
+    couch_config:set("log", "level", atom_to_list(Verbose), false),
+
     couch_util:start_app_deps(couch_httpd),
     application:start(couch_httpd),
     couch_util:start_app_deps(couch_replicator),
@@ -133,17 +139,30 @@ start_couch() ->
 
 stop_couch() ->
     application:stop(couch_replicator),
-    timer:sleep(1000),
     application:stop(couch_httpd),
     application:stop(couch),
     application:stop(os_mon).
 
-restart_couch() ->
+restart_couch(Verbose) ->
     stop_couch(),
-    timer:sleep(1000),
-    start_couch().
+    start_couch(Verbose).
 
-exec(Path) ->
+exec_loop(Port, Verbose, Acc) ->
+    receive
+        {Port, {data, {eol, "OK"}}} ->
+            ok;
+        {Port, {data, {eol, "restart"}}} ->
+            restart_couch(Verbose),
+            exec_loop(Port, Verbose, Acc);
+        {Port, {data, {eol, Line}}} ->
+            exec_loop(Port, Verbose, Acc ++ "\n" ++ Line);
+        {Port, {data, {noeol, Verbose, Line}}} ->
+            exec_loop(Port, Verbose, Acc ++ Line);
+        {Port, {exit_status, _}} ->
+            {error, Acc}
+    end.
+
+exec(Path, Verbose) ->
     COUCHJS = filename:join([builddir(), "apps", "couch", "priv",
                              "couchjs"]),
     CouchUri = filename:join([testdir(), "data", "couch.uri"]),
@@ -159,39 +178,37 @@ exec(Path) ->
                        Path,
                        js_test_file("cli_runner.js")], " "),
 
-    Resp = os:cmd(Cmd),
-    Lines = string:tokens(Resp, "\n"),
-    Result = lists:foldr(fun
-                ("restart", Acc) ->
-                    restart_couch(),
-                    Acc;
-                ("OK", _Acc) ->
-                    ok;
-                (_Else, Acc) ->
-                    io:format("got else ~p~n", [_Else]),
-                    Acc
-            end, fail, Lines),
-    io:format("~s ... ~s~n", [filename:basename(Path), Result]),
+    PortSettings = [exit_status, {line, 16384}, use_stdio, stderr_to_stdout,
+                    hide],
+
+    io:format("~s ... testing~n", [filename:basename(Path)]),
+    Port = open_port({spawn, Cmd}, PortSettings),
+    Result = case exec_loop(Port, Verbose, "") of
+        ok ->
+            io:format("~s ... ok~n", [filename:basename(Path)]),
+            ok;
+        {error, Output} ->
+            io:format("~s ... fail~n", [filename:basename(Path)]),
+            io:format("javascript traceback:~n~s~n", [Output]),
+            fail
+    end,
+
     Result.
 
-
-
-test(TestDir, Files) ->
-    start_couch(),
+test(TestDir, Files, Verbose) ->
+    start_couch(Verbose),
     timer:sleep(1000),
 
     io:format("==> run javascript tests.~n~n", []),
     {Failed, Success} = lists:foldl(fun(Name, {FAILs, OKs}) ->
                 Path = filename:join([TestDir, Name]),
-                Result = exec(Path),
+                Result = exec(Path, Verbose),
                 case Result of
                     ok-> {FAILs, [{Name, ok} | OKs]};
                     _ -> {[{Name, fail} | FAILs], OKs}
                 end
 
         end, {[], []}, Files),
-
-    stop_couch(),
 
     NFailed = length(Failed),
     NSuccess = length(Success),
@@ -210,9 +227,16 @@ test(TestDir, Files) ->
             io:format("~n~p/~p tests failed~n", [NFailed, Count]),
             halt(1)
     end.
+
 main([]) ->
     TestDir = filename:join([scriptdir(), "test"]),
-    test(TestDir, filelib:wildcard("*.js", TestDir));
+    test(TestDir, filelib:wildcard("*.js", TestDir), none);
+main(["-v", File | _]) ->
+    Dir = filename:absname(filename:dirname(File)),
+    test(Dir, [filename:basename(File)], info);
+main(["-vv", File | _]) ->
+    Dir = filename:absname(filename:dirname(File)),
+    test(Dir, [filename:basename(File)], debug);
 main([File |_]) ->
     Dir = filename:absname(filename:dirname(File)),
-    test(Dir, [filename:basename(File)]).
+    test(Dir, [filename:basename(File)], none).
