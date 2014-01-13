@@ -24,124 +24,16 @@
 
 -export([main/1]).
 
-builddir() ->
-    Current = filename:dirname(escript:script_name()),
-    filename:absname(filename:join([Current, "..", ".."])).
-
-srcdir() ->
-    filename:join([builddir(), "apps"]).
-
-depsdir() ->
-    filename:join([builddir(), "deps"]).
-
-testdir() ->
-    filename:join([builddir(), "test", "out"]).
-
-scriptdir() ->
-    filename:join([testdir(), "share", "www", "script"]).
-
-
-script_file(Name) ->
-    filename:join([scriptdir(), Name]).
-
-js_test_file(Name) ->
-    filename:join([builddir(), "test", "javascript", Name]).
-
-
-config_files() ->
-    [
-        filename:join([testdir(), "couch_test.ini"]),
-        filename:join([testdir(), "local.ini"])
-    ].
-
-
-
-%%
-%% Given a list of key value pairs, for each string value attempt to
-%% render it using Dict as the context. Storing the result in Dict as Key.
-%%
-resolve_variables([], Dict) ->
-    Dict;
-resolve_variables([{Key, Value0} | Rest], Dict) when is_integer(Value0) ->
-    Value = render(list_to_binary(integer_to_list(Value0)), Dict),
-    resolve_variables(Rest, dict:store(Key, Value, Dict));
-resolve_variables([{Key, Value0} | Rest], Dict) when is_list(Value0) ->
-    Value = render(list_to_binary(Value0), Dict),
-    resolve_variables(Rest, dict:store(Key, Value, Dict));
-resolve_variables([{Key, {list, Dicts}} | Rest], Dict) when is_list(Dicts) ->
-    %% just un-tag it so mustache can use it
-    resolve_variables(Rest, dict:store(Key, Dicts, Dict));
-resolve_variables([_Pair | Rest], Dict) ->
-    resolve_variables(Rest, Dict).
-
-%%
-%% Render a binary to a string, using mustache and the specified context
-%%
-
-render(Bin, Context) ->
-    %% Be sure to escape any double-quotes before rendering...
-    ReOpts = [global, {return, list}],
-    Str0 = re:replace(Bin, "\\\\", "\\\\\\", ReOpts),
-    Str1 = re:replace(Str0, "\"", "\\\\\"", ReOpts),
-    mustache:render(Str1, Context).
-
-
-init_config() ->
-    {ok, Vars} = file:consult(filename:join([builddir(), "test",
-                                             "vars.config"])),
-
-    Vars1 = resolve_variables(Vars, dict:from_list([{testdir, testdir()}])),
-
-    %% create test config
-    {ok, Bin} = file:read_file(filename:join([builddir(), "etc",
-                                              "couchdb", "couch.ini"])),
-
-    Rendered = render(Bin, Vars1),
-    file:write_file(filename:join([testdir(), "couch_test.ini"]),
-                     Rendered).
-
-
-init_code_path() ->
-    lists:foreach(fun(Name) ->
-                code:add_patha(filename:join([depsdir(), Name, "ebin"]))
-        end, filelib:wildcard("*", depsdir())),
-
-    lists:foreach(fun(Name) ->
-                code:add_patha(filename:join([srcdir(), Name, "ebin"]))
-        end, filelib:wildcard("*", srcdir())),
-
-    code:add_patha(filename:join([builddir(), "test", "etap"])),
-
-    %% init config
-    init_config().
-
 start_couch(Verbose) ->
-    ok = init_code_path(),
-    IniFiles = config_files(),
-
-    application:load(sasl),
-    %% disable sasl logging
-    application:set_env(sasl, errlog_type, error),
-    application:set_env(sasl, sasl_error_logger, false),
-
     %% start couch
-    application:load(couch),
-    application:set_env(couch, config_files, IniFiles),
-    couch_util:start_app_deps(couch),
-    application:start(couch),
+    test_util:start_couch(),
     %% set couch log level
     couch_config:set("log", "level", atom_to_list(Verbose), false),
-
-    couch_util:start_app_deps(couch_httpd),
-    application:start(couch_httpd),
-    couch_util:start_app_deps(couch_replicator),
-    application:start(couch_replicator).
+    ok.
 
 stop_couch() ->
-    application:stop(couch_replicator),
-    application:stop(couch_httpd),
-    application:stop(couch),
-    application:stop(os_mon).
+    application:stop(os_mon),
+    test_util:stop_couch().
 
 restart_couch(Verbose) ->
     stop_couch(),
@@ -163,20 +55,20 @@ exec_loop(Port, Verbose, Acc) ->
     end.
 
 exec(Path, Verbose) ->
-    COUCHJS = filename:join([builddir(), "apps", "couch", "priv",
+    COUCHJS = filename:join([test_util:builddir(), "apps", "couch", "priv",
                              "couchjs"]),
-    CouchUri = filename:join([testdir(), "data", "couch.uri"]),
+    CouchUri = filename:join([test_util:testdir(), "data", "couch.uri"]),
     Cmd = string:join([COUCHJS, "-H", "-u", CouchUri,
-                       script_file("json2.js"),
-                       script_file("sha1.js"),
-                       script_file("oauth.js"),
-                       script_file("couch.js"),
-                       script_file("replicator_db_inc.js"),
-                       script_file("couch_test_runner.js"),
-                       js_test_file("couch_http.js"),
-                       js_test_file("test_setup.js"),
+                       test_util:script_file("json2.js"),
+                       test_util:script_file("sha1.js"),
+                       test_util:script_file("oauth.js"),
+                       test_util:script_file("couch.js"),
+                       test_util:script_file("replicator_db_inc.js"),
+                       test_util:script_file("couch_test_runner.js"),
+                       test_util:js_test_file("couch_http.js"),
+                       test_util:js_test_file("test_setup.js"),
                        Path,
-                       js_test_file("cli_runner.js")], " "),
+                       test_util:js_test_file("cli_runner.js")], " "),
 
     PortSettings = [exit_status, {line, 16384}, use_stdio, stderr_to_stdout,
                     hide],
@@ -229,7 +121,7 @@ test(TestDir, Files, Verbose) ->
     end.
 
 main([]) ->
-    TestDir = filename:join([scriptdir(), "test"]),
+    TestDir = filename:join([test_util:scriptdir(), "test"]),
     test(TestDir, filelib:wildcard("*.js", TestDir), none);
 main(["-v", File | _]) ->
     Dir = filename:absname(filename:dirname(File)),

@@ -13,10 +13,12 @@
 -module(test_util).
 
 -export([init_code_path/0]).
--export([source_file/1, build_file/1, test_file/1, config_files/0]).
+-export([builddir/0, srcdir/0, depsdir/0, testdir/0, scriptdir/0]).
+-export([source_file/1, build_file/1, test_file/1, config_files/0,
+         script_file/1, js_test_file/1]).
 -export([run/2]).
 -export([request/3, request/4]).
-
+-export([start_couch/0, stop_couch/0]).
 
 builddir() ->
     Current = filename:dirname(code:which(?MODULE)),
@@ -30,6 +32,31 @@ depsdir() ->
 
 testdir() ->
     filename:join([builddir(), "test", "out"]).
+
+scriptdir() ->
+    filename:join([testdir(), "share", "www", "script"]).
+
+source_file(Name) ->
+    filename:join([srcdir(), Name]).
+
+build_file(Name) ->
+    filename:join([builddir(), Name]).
+
+test_file(Name) ->
+    filename:join([testdir(), Name]).
+
+script_file(Name) ->
+    filename:join([scriptdir(), Name]).
+
+js_test_file(Name) ->
+    filename:join([builddir(), "test", "javascript", Name]).
+
+
+config_files() ->
+    [
+        filename:join([testdir(), "couch_test.ini"]),
+        filename:join([testdir(), "local.ini"])
+    ].
 
 %%
 %% Given a list of key value pairs, for each string value attempt to
@@ -94,22 +121,34 @@ init_code_path() ->
     application:load(couch),
     init_config().
 
+start_couch() ->
+    ok = test_util:init_code_path(),
+    IniFiles = test_util:config_files(),
 
-source_file(Name) ->
-    filename:join([srcdir(), Name]).
+    %% disable sasl
+    application:load(sasl),
+    application:set_env(sasl, errlog_type, error),
+    application:set_env(sasl, sasl_error_logger, false),
 
-build_file(Name) ->
-    filename:join([builddir(), Name]).
+    %% start couch
+    application:load(couch),
+    application:set_env(couch, config_files, IniFiles),
+    couch_util:start_app_deps(couch),
+    application:start(couch),
 
-test_file(Name) ->
-    filename:join([testdir(), Name]).
+    %% start couch_httpd
+    couch_util:start_app_deps(couch_httpd),
+    application:start(couch_httpd),
 
-config_files() ->
-    [
-        filename:join([testdir(), "couch_test.ini"]),
-        filename:join([testdir(), "local.ini"])
-    ].
+    %% start couch_replicator
+    couch_util:start_app_deps(couch_replicator),
+    application:start(couch_replicator).
 
+stop_couch() ->
+    application:stop(couch_replicator),
+    application:stop(couch_httpd),
+    application:stop(couch),
+    application:stop(os_mon).
 
 run(Plan, Fun) ->
     test_util:init_code_path(),
