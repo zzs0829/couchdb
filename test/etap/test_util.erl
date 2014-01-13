@@ -18,7 +18,7 @@
          script_file/1, js_test_file/1]).
 -export([run/2]).
 -export([request/3, request/4]).
--export([start_couch/0, stop_couch/0]).
+-export([start_couch/0, start_couch/1, stop_couch/0]).
 
 builddir() ->
     Current = filename:dirname(code:which(?MODULE)),
@@ -121,14 +121,22 @@ init_code_path() ->
     application:load(couch),
     init_config().
 
+
 start_couch() ->
+    start_couch(config_files()).
+
+start_couch(IniFiles) ->
     ok = test_util:init_code_path(),
-    IniFiles = test_util:config_files(),
 
     %% disable sasl
     application:load(sasl),
     application:set_env(sasl, errlog_type, error),
     application:set_env(sasl, sasl_error_logger, false),
+
+    %% disable cpu and mem supervision in os_mon
+    application:load(os_mon),
+    application:set_env(os_mon, start_memsup, false),
+    application:set_env(os_mon, start_cpu_sup, false),
 
     %% start couch
     application:load(couch),
@@ -147,8 +155,7 @@ start_couch() ->
 stop_couch() ->
     application:stop(couch_replicator),
     application:stop(couch_httpd),
-    application:stop(couch),
-    application:stop(os_mon).
+    application:stop(couch).
 
 run(Plan, Fun) ->
     test_util:init_code_path(),

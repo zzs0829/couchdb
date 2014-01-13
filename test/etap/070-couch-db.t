@@ -15,8 +15,6 @@
 % the License.
 
 main(_) ->
-    test_util:init_code_path(),
-
     etap:plan(4),
     case (catch test()) of
         ok ->
@@ -28,7 +26,7 @@ main(_) ->
     ok.
 
 test() ->
-    couch_server_sup:start_link(test_util:config_files()),
+    test_util:start_couch(),
 
     couch_db:create(<<"etap-test-db">>, []),
     {ok, AllDbs} = couch_server:all_databases(),
@@ -70,4 +68,5 @@ test() ->
     end, 0, lists:seq(1, 6)),
     etap:is(6, NumDeleted, "Deleted all databases."),
 
+    test_util:stop_couch(),
     ok.

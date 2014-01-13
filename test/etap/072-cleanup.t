@@ -25,8 +25,6 @@
 -define(ADMIN_USER, #user_ctx{roles=[<<"_admin">>]}).
 
 main(_) ->
-    test_util:init_code_path(),
-
     etap:plan(7),
     try test() of
         ok ->
@@ -40,8 +38,7 @@ main(_) ->
     ok.
 
 test() ->
-    {ok, _} = couch_server_sup:start_link(test_util:config_files()),
-    couch_httpd_sup:start_link(),
+    test_util:start_couch(),
 
     couch_server:delete(?TEST_DB, []),
     timer:sleep(1000),
@@ -76,6 +73,8 @@ test() ->
     {ok, AllDbs2} = couch_server:all_databases(),
     etap:ok(not lists:member(?TEST_DB, AllDbs2),
         "Database was deleted."),
+    
+    catch test_util:stop_couch(),
     ok.
 
 create_design_doc(DDName, ViewName) ->

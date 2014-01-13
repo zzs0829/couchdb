@@ -52,8 +52,6 @@ test_db_name() -> <<"couch_test_changes">>.
 
 
 main(_) ->
-    test_util:init_code_path(),
-
     etap:plan(43),
     case (catch test()) of
         ok ->
@@ -66,8 +64,8 @@ main(_) ->
 
 
 test() ->
-    couch_server_sup:start_link(test_util:config_files()),
-    couch_httpd_sup:start_link(),
+    test_util:start_couch(),
+    timer:sleep(1000),
 
     test_by_doc_ids(),
     test_by_doc_ids_with_since(),
@@ -75,7 +73,7 @@ test() ->
     test_design_docs_only(),
     test_heartbeat(),
 
-    couch_server_sup:stop(),
+    test_util:stop_couch(),
     ok.
 
 

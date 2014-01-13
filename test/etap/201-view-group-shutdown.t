@@ -53,8 +53,6 @@ main_db_name() -> <<"couch_test_view_group_shutdown">>.
 
 
 main(_) ->
-    test_util:init_code_path(),
-
     etap:plan(17),
     case (catch test()) of
         ok ->
@@ -67,7 +65,7 @@ main(_) ->
 
 
 test() ->
-    couch_server_sup:start_link(test_util:config_files()),
+    test_util:start_couch(),
     ok = couch_config:set("couchdb", "max_dbs_open", "3", false),
     ok = couch_config:set("couchdb", "delayed_commits", "false", false),
     crypto:start(),
@@ -76,7 +74,7 @@ test() ->
     % be closed by the database LRU system.
     test_view_group_compaction(),
 
-    couch_server_sup:stop(),
+    test_util:stop_couch(),
     ok.
 
 

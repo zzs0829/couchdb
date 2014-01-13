@@ -15,8 +15,6 @@
 % the License.
 
 main(_) ->
-    test_util:init_code_path(),
-
     etap:plan(8),
     case (catch test()) of
         ok ->
@@ -29,15 +27,14 @@ main(_) ->
 
 
 test() ->
-    couch_server_sup:start_link(test_util:config_files()),
-    couch_httpd_sup:start_link(),
+    test_util:start_couch(),
 
     % commit sofort
     ok = couch_config:set("query_server_config", "commit_freq", "0"),
 
     test_upgrade(),
 
-    couch_server_sup:stop(),
+    test_util:stop_couch(),
     ok.
 
 fixture_path() ->

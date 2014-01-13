@@ -24,8 +24,6 @@ test_db_name() ->
     <<"couch_test_compaction_daemon">>.
 
 main(_) ->
-    test_util:init_code_path(),
-
     etap:plan(10),
     case (catch test()) of
         ok ->
@@ -37,8 +35,7 @@ main(_) ->
     ok.
 
 test() ->
-    couch_server_sup:start_link(test_util:config_files()),
-    couch_httpd_sup:start_link(),
+    test_util:start_couch(),
 
     timer:sleep(1000),
     put(addr, couch_config:get("httpd", "bind_address", "127.0.0.1")),
@@ -105,7 +102,7 @@ test() ->
     etap:is(couch_db:is_idle(Db), true, "Database is idle"),
 
     delete_db(),
-    couch_server_sup:stop(),
+    test_util:stop_couch(),
     ok.
 
 disable_compact_daemon() ->

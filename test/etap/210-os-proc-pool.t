@@ -15,8 +15,6 @@
 % the License.
 
 main(_) ->
-    test_util:init_code_path(),
-
     etap:plan(21),
     case (catch test()) of
         ok ->
@@ -29,13 +27,13 @@ main(_) ->
 
 
 test() ->
-    couch_server_sup:start_link(test_util:config_files()),
+    test_util:start_couch(),
     couch_config:set("query_server_config", "os_process_limit", "3", false),
 
     test_pool_full(),
     test_client_unexpected_exit(),
 
-    couch_server_sup:stop(),
+    test_util:stop_couch(),
     ok.
 
 

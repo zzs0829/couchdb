@@ -53,8 +53,6 @@ test_db_name() -> <<"couch_test_view_group_db_leaks">>.
 ddoc_name() -> <<"foo">>.
 
 main(_) ->
-    test_util:init_code_path(),
-
     etap:plan(28),
     case (catch test()) of
         ok ->
@@ -66,8 +64,7 @@ main(_) ->
     ok.
 
 test() ->
-    couch_server_sup:start_link(test_util:config_files()),
-    couch_httpd_sup:start_link(),
+    test_util:start_couch(),
 
     timer:sleep(1000),
     put(addr, couch_config:get("httpd", "bind_address", "127.0.0.1")),
@@ -146,7 +143,7 @@ test() ->
 
     ok = timer:sleep(1000),
     delete_db(),
-    couch_server_sup:stop(),
+    test_util:stop_couch(),
     ok.
 
 admin_user_ctx() ->

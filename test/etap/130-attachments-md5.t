@@ -28,8 +28,6 @@ docid() ->
     end.
 
 main(_) ->
-    test_util:init_code_path(),
-
     etap:plan(16),
     case (catch test()) of
         ok ->
@@ -41,8 +39,7 @@ main(_) ->
     ok.
 
 test() ->
-    couch_server_sup:start_link(test_util:config_files()),
-    couch_httpd_sup:start_link(),
+    test_util:start_couch(),
 
     Addr = couch_config:get("httpd", "bind_address", any),
     put(addr, Addr),
@@ -64,7 +61,7 @@ test() ->
     test_chunked_with_invalid_md5_trailer(),
 
     couch_server:delete(test_db_name(), []),
-    couch_server_sup:stop(),
+    test_util:stop_couch(),
     ok.
 
 test_identity_without_md5() ->

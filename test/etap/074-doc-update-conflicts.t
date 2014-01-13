@@ -25,8 +25,6 @@ test_db_name() -> <<"couch_test_update_conflicts">>.
 
 
 main(_) ->
-    test_util:init_code_path(),
-
     etap:plan(35),
     case (catch test()) of
         ok ->
@@ -39,7 +37,8 @@ main(_) ->
 
 
 test() ->
-    couch_server_sup:start_link(test_util:config_files()),
+    test_util:start_couch(),
+
     couch_config:set("couchdb", "delayed_commits", "true", false),
 
     lists:foreach(
@@ -48,7 +47,7 @@ test() ->
 
     test_bulk_delete_create(),
 
-    couch_server_sup:stop(),
+    test_util:stop_couch(),
     ok.
 
 
@@ -121,9 +120,9 @@ test_concurrent_doc_update(NumClients) ->
 
     ok = timer:sleep(1000),
     etap:diag("Restarting the server"),
-    couch_server_sup:stop(),
+    test_util:stop_couch(),
     ok = timer:sleep(1000),
-    couch_server_sup:start_link(test_util:config_files()),
+    test_util:start_couch(),
 
     {ok, Db3} = couch_db:open_int(test_db_name(), []),
     {ok, Leaves2} = couch_db:open_doc_revs(Db3, <<"foobar">>, all, []),

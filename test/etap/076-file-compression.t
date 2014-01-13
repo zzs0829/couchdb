@@ -25,8 +25,6 @@ num_docs() -> 5000.
 
 
 main(_) ->
-    test_util:init_code_path(),
-
     etap:plan(10),
     case (catch test()) of
         ok ->
@@ -39,7 +37,7 @@ main(_) ->
 
 
 test() ->
-    {ok, _} = couch_server_sup:start_link(test_util:config_files()),
+    test_util:start_couch(),
 
     couch_config:set("couchdb", "file_compression", "none", false),
 
@@ -95,7 +93,7 @@ test() ->
     etap:is(ViewDiskSize6 > ViewDiskSize5, true, "Index disk size increased again"),
 
     delete_db(),
-    couch_server_sup:stop(),
+    test_util:stop_couch(),
     ok.
 
 

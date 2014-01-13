@@ -15,9 +15,6 @@
 % the License.
 
 main(_) ->
-
-    test_util:init_code_path(),
-
     etap:plan(unknown),
     case (catch test()) of
         ok ->
@@ -41,7 +38,7 @@ cycle() ->
     ok.
 
 test() ->
-    couch_server_sup:start_link(test_util:config_files()),
+    test_util:start_couch(), 
 
     {ok, _Db} = couch_db:create(<<"etap-test-db">>, []),
 

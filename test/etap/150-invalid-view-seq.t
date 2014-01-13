@@ -24,8 +24,6 @@ test_db_name() ->
     <<"couch_test_invalid_view_seq">>.
 
 main(_) ->
-    test_util:init_code_path(),
-
     etap:plan(10),
     case (catch test()) of
         ok ->
@@ -40,8 +38,7 @@ main(_) ->
 %%       a huge and ugly but harmless stack trace is sent to stderr
 %%
 test() ->
-    couch_server_sup:start_link(test_util:config_files()),
-    couch_httpd_sup:start_link(),
+    test_util:start_couch(),
 
     timer:sleep(1000),
     delete_db(),
@@ -65,7 +62,7 @@ test() ->
     query_view_after_restore_backup(),
 
     delete_db(),
-    catch couch_server_sup:stop(),
+    catch test_util:stop_couch(),
     ok.
 
 admin_user_ctx() ->
@@ -158,13 +155,13 @@ has_doc(DocId1, Rows) ->
     ).
 
 restore_backup_db_file() ->
-    couch_server_sup:stop(),
+    test_util:stop_couch(),
     timer:sleep(3000),
     DbFile = test_util:test_file("data/" ++
     binary_to_list(test_db_name()) ++ ".couch"),
     ok = file:delete(DbFile),
     ok = file:rename(DbFile ++ ".backup", DbFile),
-    couch_server_sup:start_link(test_util:config_files()),
+    test_util:start_couch(),
     timer:sleep(1000),
     put(port, integer_to_list(mochiweb_socket_server:get(couch_http, port))),
     ok.

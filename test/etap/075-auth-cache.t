@@ -54,8 +54,6 @@ salt() -> <<"SALT">>.
 
 
 main(_) ->
-    test_util:init_code_path(),
-
     etap:plan(19),
     case (catch test()) of
         ok ->
@@ -68,7 +66,7 @@ main(_) ->
 
 
 test() ->
-    couch_server_sup:start_link(test_util:config_files()),
+    test_util:start_couch(),
     OrigName = couch_config:get("couch_httpd_auth", "authentication_db"),
     couch_config:set(
         "couch_httpd_auth", "authentication_db",
@@ -81,7 +79,7 @@ test() ->
     couch_config:set("couch_httpd_auth", "authentication_db", OrigName, false),
     delete_db(auth_db_name()),
     delete_db(auth_db_2_name()),
-    couch_server_sup:stop(),
+    test_util:stop_couch(),
     ok.
 
 
