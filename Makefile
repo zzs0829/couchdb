@@ -60,7 +60,7 @@ rebar:
 	@cp $(BASE_DIR)/support/rebar/rebar $(BASE_DIR)/rebar
 
 rebarclean:
-	@(cd $(BASE_DIR)/support/rebar/rebar && \
+	@(cd $(BASE_DIR)/support/rebar && \
 		rm -rf rebar ebin/*.beam inttest/rt.work rt.work .test)
 
 #
