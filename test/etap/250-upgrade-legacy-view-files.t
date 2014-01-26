@@ -53,7 +53,7 @@ old_view_name() ->
     "3b835456c235b1827e012e25666152f3.view".
 
 new_view_name() ->
-    "a1c5929f912aca32f13446122cc6ce50.view".
+    "7676c2334cf7caa836ed9278eb669105.view".
 
 couch_url() ->
     "http://" ++ addr() ++ ":" ++ port().
@@ -78,6 +78,7 @@ port() ->
     seq=0,
     purge_seq=0,
     id_btree_state=nil,
+    log_btree_state=nil,
     view_states=nil
 }).
 
