@@ -444,6 +444,15 @@ couchTests.changes = function(debug) {
   T(resp.results.length === 1);
   T(resp.results[0].id === "blah");
 
+   var req = CouchDB.request("GET", "/test_suite_db/_changes?filter=_view&view=changes_seq_indexed/blah&use_index=no");
+  var resp = JSON.parse(req.responseText);
+  T(resp.results.length === 1);
+  T(resp.results[0].id === "blah");
+
+  var req = CouchDB.request("GET", '/test_suite_db/_changes?filter=_view&view=changes_seq_indexed/blah&key="test"&use_index=no');
+  TEquals(400, req.status, "should return 400 for when use_index=no");
+
+
   // test for userCtx
   run_on_modified_server(
     [{section: "httpd",
