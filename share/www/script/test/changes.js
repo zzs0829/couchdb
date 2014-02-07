@@ -283,7 +283,28 @@ couchTests.changes = function(debug) {
     }
   };
 
+  var ddoc1 = {
+    _id : "_design/changes_seq_indexed",
+    options : {
+      local_seq : true,
+      seq_indexed : true
+    },
+    views : {
+      local_seq : {
+        map : "function(doc) {emit(doc._local_seq, null)}"
+      },
+      blah: {
+        map : 'function(doc) {' +
+              '  if (doc._id == "blah") {' +
+              '    emit("test", null);' +
+              '  }' +
+              '}'
+      }
+    }
+  };
+
   db.save(ddoc);
+  db.save(ddoc1);
 
   var req = CouchDB.request("GET", "/test_suite_db/_changes?filter=changes_filter/bop");
   var resp = JSON.parse(req.responseText);
@@ -404,6 +425,24 @@ couchTests.changes = function(debug) {
   T(resp.results.length === 1);
   T(resp.results[0].id === "blah");
 
+  var req = CouchDB.request("GET", '/test_suite_db/_changes?filter=_view&view=changes_filter/blah&key="test"');
+  TEquals(400, req.status, "should return 400 for when seq_indexed=false");
+
+  // test filter on view function (map) with seq_indexed = true
+  //
+
+  var resp = db.view('changes_seq_indexed/blah', {limit: 1});
+  T(resp.rows.length == 1);
+
+  var req = CouchDB.request("GET", "/test_suite_db/_changes?filter=_view&view=changes_seq_indexed/blah");
+  var resp = JSON.parse(req.responseText);
+  T(resp.results.length === 1);
+  T(resp.results[0].id === "blah");
+
+  var req = CouchDB.request("GET", '/test_suite_db/_changes?filter=_view&view=changes_seq_indexed/blah&key="test"');
+  var resp = JSON.parse(req.responseText);
+  T(resp.results.length === 1);
+  T(resp.results[0].id === "blah");
 
   // test for userCtx
   run_on_modified_server(
