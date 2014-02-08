@@ -295,7 +295,7 @@ couchTests.changes = function(debug) {
       },
       blah: {
         map : 'function(doc) {' +
-              '  if (doc._id == "blah") {' +
+              '  if ((doc._id == "blah") || (doc._id == "blah2")) {' +
               '    emit("test", null);' +
               '  }' +
               '}'
@@ -451,6 +451,23 @@ couchTests.changes = function(debug) {
 
   var req = CouchDB.request("GET", '/test_suite_db/_changes?filter=_view&view=changes_seq_indexed/blah&key="test"&use_index=no');
   TEquals(400, req.status, "should return 400 for when use_index=no");
+
+
+  T(db.save({"_id":"blah2", "bop" : "plankton"}).ok);
+
+  var req = CouchDB.request("GET", "/test_suite_db/_changes?filter=_view&view=changes_seq_indexed/blah");
+  var resp = JSON.parse(req.responseText);
+  T(resp.results.length === 2);
+  T(resp.results[0].id === "blah");
+  T(resp.results[1].id === "blah2");
+
+  var req = CouchDB.request("GET", '/test_suite_db/_changes?filter=_view&view=changes_seq_indexed/blah&key="test"');
+  var resp = JSON.parse(req.responseText);
+  T(resp.results.length === 2);
+  T(resp.results[0].id === "blah");
+  T(resp.results[1].id === "blah2");
+
+
 
 
   // test for userCtx
