@@ -40,6 +40,7 @@ end,
 
 CouchJSName = proplists:get_value(couchjs_name, Cfg, "couchjs"),
 
+
 [
     {sys, [
             {lib_dirs, ["../deps", "../apps"]},
