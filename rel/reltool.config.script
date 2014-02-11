@@ -48,6 +48,7 @@ CouchJSName = proplists:get_value(couchjs_name, Cfg, "couchjs"),
                 [
                     kernel,
                     stdlib,
+                    lager,
                     sasl,
                     public_key,
                     ssl,
@@ -97,6 +98,8 @@ CouchJSName = proplists:get_value(couchjs_name, Cfg, "couchjs"),
             {app, jiffy, [{incl_cond, include}]},
             {app, snappy, [{incl_cond, include}]},
             {app, ibrowse, [{incl_cond, include}]},
+            {app, goldrush, [{incl_cond, include}]},
+            {app, lager, [{incl_cond, include}]},
 
             %% couchdb
             {app, couch, [{incl_cond, include}]},
