@@ -48,6 +48,10 @@ main(_) ->
 
 test() ->
     couch_config:start_link(config_files()),
+    application:start(syntax_tools),
+    application:start(compiler),
+    application:start(goldrush),
+    application:start(lager),
     couch_config:set("log", "level", "debug", false),
     couch_log:start_link(),
     couch_os_daemons:start_link(),

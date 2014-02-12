@@ -128,6 +128,11 @@ start_couch() ->
 start_couch(IniFiles) ->
     ok = test_util:init_code_path(),
 
+    application:start(syntax_tools),
+    application:start(compiler),
+    application:start(goldrush),
+    application:start(lager),
+
     %% disable sasl
     application:load(sasl),
     application:set_env(sasl, errlog_type, error),
