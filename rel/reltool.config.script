@@ -43,7 +43,7 @@ CouchJSName = proplists:get_value(couchjs_name, Cfg, "couchjs"),
 
 [
     {sys, [
-            {lib_dirs, ["../deps"]},
+            {lib_dirs, ["../src"]},
             {rel, "couchdb", Vsn,
                 [
                     kernel,
@@ -127,11 +127,11 @@ CouchJSName = proplists:get_value(couchjs_name, Cfg, "couchjs"),
         {copy, "../etc/couchdb/empty", "data/KEEP"},
 
         %% Copy base files for starting and interacting w/ node
-        {copy, "../deps/node_package/priv/base/erl", "{{erts_vsn}}/bin/erl"},
-        {copy, "../deps/node_package/priv/base/nodetool", "{{erts_vsn}}/bin/nodetool"},
-        {template, "../deps/node_package/priv/base/runner", "bin/couchdb"},
-        {template, "../deps/node_package/priv/base/env.sh", "lib/env.sh"},
-        {template, "../deps/node_package/priv/base/app_epath.sh", "lib/app_epath.sh"},
+        {copy, "../src/node_package/priv/base/erl", "{{erts_vsn}}/bin/erl"},
+        {copy, "../src/node_package/priv/base/nodetool", "{{erts_vsn}}/bin/nodetool"},
+        {template, "../src/node_package/priv/base/runner", "bin/couchdb"},
+        {template, "../src/node_package/priv/base/env.sh", "lib/env.sh"},
+        {template, "../src/node_package/priv/base/app_epath.sh", "lib/app_epath.sh"},
 
         %% config files
         {template, "../etc/couchdb/app.config", "etc/app.config"},
@@ -145,7 +145,7 @@ CouchJSName = proplists:get_value(couchjs_name, Cfg, "couchjs"),
         {copy, "../share/server/main.js", "share/server"},
         {copy, "../share/server/main-coffee.js", "share/server"},
         {copy, "../share/www", "share"},
-        {copy, "../deps/couch/priv/" ++ CouchJSName, "bin/" ++ CouchJSName},
+        {copy, "../src/couch/priv/" ++ CouchJSName, "bin/" ++ CouchJSName},
 
         %% misc
         {mkdir, "lib/couch-patches"},

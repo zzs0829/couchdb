@@ -20,7 +20,7 @@ THANKS
 
 __pycache__
 b
-deps
+src
 rel/apache-couchdb
 
 # rebar
@@ -31,28 +31,28 @@ rebar
 support/rebar/.test
 
 # couch_collate
-apps/couch_collate/ebin
-apps/couch_collate/priv
-apps/couch_collate/c_src/*.o
-apps/couch_collate/.libs
-apps/couch_collate/.dists
+deps/couch_collate/ebin
+deps/couch_collate/priv
+deps/couch_collate/c_src/*.o
+deps/couch_collate/.libs
+deps/couch_collate/.dists
 
-apps/couch/ebin
-apps/couch_replicator/ebin
-apps/couch_mrview/ebin
-apps/couch_index/ebin
-apps/couch_dbupdates/ebin
-apps/couch_plugins/ebin
-apps/couch_rel/ebin/*.beam
+deps/couch/ebin
+deps/couch_replicator/ebin
+deps/couch_mrview/ebin
+deps/couch_index/ebin
+deps/couch_dbupdates/ebin
+deps/couch_plugins/ebin
+deps/couch_rel/ebin/*.beam
 
 # couchjs
-apps/couch/c_src/couch_js/*.o
-apps/couch/c_src/couch_js/config.h
-apps/couch/priv/couchjs
-apps/couch/c_src/spawnkillable/*.o
-apps/couch/priv/couchspawnkillable
-apps/couch/.libs
-apps/couch/.dists
+deps/couch/c_src/couch_js/*.o
+deps/couch/c_src/couch_js/config.h
+deps/couch/priv/couchjs
+deps/couch/c_src/spawnkillable/*.o
+deps/couch/priv/couchspawnkillable
+deps/couch/.libs
+deps/couch/.dists
 
 share/server/main-coffee.js
 share/server/main.js

@@ -115,18 +115,18 @@ COUCHDB_ETAP_DIR=$(BASE_DIR)/test/etap
 export COUCHDB_ETAP_DIR
 
 
-ERL_FLAGS=-pa $(BASE_DIR)/deps/*/ebin -pa $(COUCHDB_ETAP_DIR)
+ERL_FLAGS=-pa $(BASE_DIR)/src/*/ebin -pa $(COUCHDB_ETAP_DIR)
 export ERL_FLAGS
 
 test: testbuild
 	prove $(COUCHDB_ETAP_DIR)/*.t
-	prove $(BASE_DIR)/deps/couch_mrview/test/*.t
-	prove $(BASE_DIR)/deps/couch_replicator/test/*.t
+	prove $(BASE_DIR)/src/couch_mrview/test/*.t
+	prove $(BASE_DIR)/src/couch_replicator/test/*.t
 
 verbose-test: testbuild
 	prove -v $(COUCHDB_ETAP_DIR)/*.t
-	prove -v $(BASE_DIR)/deps/couch_mrview/test/*.t
-	prove -v $(BASE_DIR)/deps/couch_replicator/test/*.t
+	prove -v $(BASE_DIR)/src/couch_mrview/test/*.t
+	prove -v $(BASE_DIR)/src/couch_replicator/test/*.t
 
 testjs: testbuild
 	$(ESCRIPT) $(BASE_DIR)/test/javascript/test_js.escript
@@ -142,7 +142,7 @@ testbuild: testclean
 	mkdir -p $(BASE_DIR)/test/out/bin
 	mkdir -p $(BASE_DIR)/test/out/share
 	mkdir -p $(BASE_DIR)/test/out/log
-	cp $(BASE_DIR)/deps/couch/priv/couchjs $(BASE_DIR)/test/out/bin/
+	cp $(BASE_DIR)/src/couch/priv/couchjs $(BASE_DIR)/test/out/bin/
 	cp -r $(BASE_DIR)/share/server $(BASE_DIR)/test/out/share
 	cp -r $(BASE_DIR)/share/www $(BASE_DIR)/test/out/share
 	cp $(BASE_DIR)/etc/couchdb/local.ini $(BASE_DIR)/test/out/
