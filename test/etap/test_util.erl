@@ -25,7 +25,7 @@ builddir() ->
     filename:absname(filename:join([Current, "..", ".."])).
 
 srcdir() ->
-    filename:join([builddir(), "apps"]).
+    filename:join([builddir(), "deps"]).
 
 depsdir() ->
     filename:join([builddir(), "deps"]).

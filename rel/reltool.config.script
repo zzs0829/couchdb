@@ -43,7 +43,7 @@ CouchJSName = proplists:get_value(couchjs_name, Cfg, "couchjs"),
 
 [
     {sys, [
-            {lib_dirs, ["../deps", "../apps"]},
+            {lib_dirs, ["../deps"]},
             {rel, "couchdb", Vsn,
                 [
                     kernel,
@@ -145,7 +145,7 @@ CouchJSName = proplists:get_value(couchjs_name, Cfg, "couchjs"),
         {copy, "../share/server/main.js", "share/server"},
         {copy, "../share/server/main-coffee.js", "share/server"},
         {copy, "../share/www", "share"},
-        {copy, "../apps/couch/priv/" ++ CouchJSName, "bin/" ++ CouchJSName},
+        {copy, "../deps/couch/priv/" ++ CouchJSName, "bin/" ++ CouchJSName},
 
         %% misc
         {mkdir, "lib/couch-patches"},
