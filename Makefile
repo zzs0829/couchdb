@@ -114,8 +114,9 @@ reldocclean:
 COUCHDB_ETAP_DIR=$(BASE_DIR)/test/etap
 export COUCHDB_ETAP_DIR
 
-ERL_LIBS=$(BASE_DIR)/deps:$(BASE_DIR)/apps:$(BASE_DIR)/test/etap
-export ERL_LIBS
+
+ERL_FLAGS=-pa $(BASE_DIR)/deps/*/ebin -pa $(COUCHDB_ETAP_DIR)
+export ERL_FLAGS
 
 test: testbuild
 	prove $(COUCHDB_ETAP_DIR)/*.t
