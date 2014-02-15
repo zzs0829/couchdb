@@ -119,37 +119,46 @@ ERL_FLAGS=-pa $(BASE_DIR)/src/*/ebin -pa $(COUCHDB_ETAP_DIR)
 export ERL_FLAGS
 
 test: testbuild
-	cd $(BASE_DIR)/src/couch_collate && \
+	@echo "==> test couch_collate"
+	@cd $(BASE_DIR)/src/couch_collate && \
 		prove $(BASE_DIR)/src/couch_collate/t/*.t
-	prove $(COUCHDB_ETAP_DIR)/*.t
-	prove $(BASE_DIR)/src/couch_mrview/test/*.t
-	prove $(BASE_DIR)/src/couch_replicator/test/*.t
+	@echo "==> test couch core"
+	@prove $(COUCHDB_ETAP_DIR)/*.t
+	@echo "==> test couch_mrview"
+	@prove $(BASE_DIR)/src/couch_mrview/test/*.t
+	@echo "==> test couch_replicator"
+	@prove $(BASE_DIR)/src/couch_replicator/test/*.t
 
 verbose-test: testbuild
-	cd $(BASE_DIR)/src/couch_collate && \
+	@echo "==> test couch_collate"
+	@cd $(BASE_DIR)/src/couch_collate && \
 		prove -v $(BASE_DIR)/src/couch_collate/t/*.t
-	prove -v $(COUCHDB_ETAP_DIR)/*.t
-	prove -v $(BASE_DIR)/src/couch_mrview/test/*.t
-	prove -v $(BASE_DIR)/src/couch_replicator/test/*.t
+	@echo "==> test couch core"
+	@prove -v $(COUCHDB_ETAP_DIR)/*.t
+	@echo "==> test couch_mrview"
+	@prove -v $(BASE_DIR)/src/couch_mrview/test/*.t
+	@echo "==> test couch_replicator"
+	@prove -v $(BASE_DIR)/src/couch_replicator/test/*.t
 
 testjs: testbuild
-	$(ESCRIPT) $(BASE_DIR)/test/javascript/test_js.escript
+	@$(ESCRIPT) $(BASE_DIR)/test/javascript/test_js.escript
 
 testbuild: testclean
-	$(ERLC) -v -o $(COUCHDB_ETAP_DIR) $(COUCHDB_ETAP_DIR)/etap.erl
-	$(ERLC) -v -o $(COUCHDB_ETAP_DIR) $(COUCHDB_ETAP_DIR)/test_web.erl
-	$(ERLC) -v -o $(COUCHDB_ETAP_DIR) $(COUCHDB_ETAP_DIR)/test_util.erl
-	$(ERLC) -v -o $(COUCHDB_ETAP_DIR) $(COUCHDB_ETAP_DIR)/mustache.erl
-	cc -DBSD_SOURCE $(COUCHDB_ETAP_DIR)/test_cfg_register.c \
+	@echo "==> init test environement"
+	@$(ERLC) -v -o $(COUCHDB_ETAP_DIR) $(COUCHDB_ETAP_DIR)/etap.erl
+	@$(ERLC) -v -o $(COUCHDB_ETAP_DIR) $(COUCHDB_ETAP_DIR)/test_web.erl
+	@$(ERLC) -v -o $(COUCHDB_ETAP_DIR) $(COUCHDB_ETAP_DIR)/test_util.erl
+	@$(ERLC) -v -o $(COUCHDB_ETAP_DIR) $(COUCHDB_ETAP_DIR)/mustache.erl
+	@cc -DBSD_SOURCE $(COUCHDB_ETAP_DIR)/test_cfg_register.c \
 		-o $(COUCHDB_ETAP_DIR)/test_cfg_register
-	mkdir -p $(BASE_DIR)/test/out/data
-	mkdir -p $(BASE_DIR)/test/out/bin
-	mkdir -p $(BASE_DIR)/test/out/share
-	mkdir -p $(BASE_DIR)/test/out/log
-	cp $(BASE_DIR)/src/couch/priv/couchjs $(BASE_DIR)/test/out/bin/
-	cp -r $(BASE_DIR)/share/server $(BASE_DIR)/test/out/share
-	cp -r $(BASE_DIR)/share/www $(BASE_DIR)/test/out/share
-	cp $(BASE_DIR)/etc/couchdb/local.ini $(BASE_DIR)/test/out/
+	@mkdir -p $(BASE_DIR)/test/out/data
+	@mkdir -p $(BASE_DIR)/test/out/bin
+	@mkdir -p $(BASE_DIR)/test/out/share
+	@mkdir -p $(BASE_DIR)/test/out/log
+	@cp $(BASE_DIR)/src/couch/priv/couchjs $(BASE_DIR)/test/out/bin/
+	@cp -r $(BASE_DIR)/share/server $(BASE_DIR)/test/out/share
+	@cp -r $(BASE_DIR)/share/www $(BASE_DIR)/test/out/share
+	@cp $(BASE_DIR)/etc/couchdb/local.ini $(BASE_DIR)/test/out/
 
 testclean:
 	@rm -rf $(COUCHDB_ETAP_DIR)/*.beam
