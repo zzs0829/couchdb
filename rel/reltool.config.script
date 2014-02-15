@@ -127,11 +127,11 @@ CouchJSName = proplists:get_value(couchjs_name, Cfg, "couchjs"),
         {copy, "../etc/couchdb/empty", "data/KEEP"},
 
         %% Copy base files for starting and interacting w/ node
-        {copy, "../src/node_package/priv/base/erl", "{{erts_vsn}}/bin/erl"},
-        {copy, "../src/node_package/priv/base/nodetool", "{{erts_vsn}}/bin/nodetool"},
-        {template, "../src/node_package/priv/base/runner", "bin/couchdb"},
-        {template, "../src/node_package/priv/base/env.sh", "lib/env.sh"},
-        {template, "../src/node_package/priv/base/app_epath.sh", "lib/app_epath.sh"},
+        {copy, "files/erl", "{{erts_vsn}}/bin/erl"},
+        {copy, "files/nodetool", "{{erts_vsn}}/bin/nodetool"},
+        {template, "files/runner", "bin/couchdb"},
+        {template, "files/env.sh", "lib/env.sh"},
+        {template, "files/app_epath.sh", "lib/app_epath.sh"},
 
         %% config files
         {template, "../etc/couchdb/app.config", "etc/app.config"},
