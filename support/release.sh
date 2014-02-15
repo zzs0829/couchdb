@@ -34,6 +34,7 @@ if test -e .git; then
         | sed $SED_ERE_FLAG -e "$CONTRIB_EMAIL_SED_COMMAND" >> THANKS
     echo "" >> THANKS # simplest portable newline
     echo "For a list of authors see the \`AUTHORS\` file." >> THANKS
+    cp THANKS $CURRENT/THANKS
 fi
 
 find_program() {
@@ -55,14 +56,6 @@ find_program() {
   set -e
   exit 1
 }
-
-REVISION=""
-if test -z "$REVISION"; then
-    if test -e .git; then
-        REVISION=`git describe --always`
-    fi
-fi
-sed "s/%revision%/$REVISION/" < pkg.vars.config.in > pkg.vars.config
 
 cat << EOF
 You have bootstrapped Apache CouchDB, time to relax.
