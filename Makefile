@@ -119,11 +119,15 @@ ERL_FLAGS=-pa $(BASE_DIR)/src/*/ebin -pa $(COUCHDB_ETAP_DIR)
 export ERL_FLAGS
 
 test: testbuild
+	cd $(BASE_DIR)/src/couch_collate && \
+		prove $(BASE_DIR)/src/couch_collate/t/*.t
 	prove $(COUCHDB_ETAP_DIR)/*.t
 	prove $(BASE_DIR)/src/couch_mrview/test/*.t
 	prove $(BASE_DIR)/src/couch_replicator/test/*.t
 
 verbose-test: testbuild
+	cd $(BASE_DIR)/src/couch_collate && \
+		prove -v $(BASE_DIR)/src/couch_collate/t/*.t
 	prove -v $(COUCHDB_ETAP_DIR)/*.t
 	prove -v $(BASE_DIR)/src/couch_mrview/test/*.t
 	prove -v $(BASE_DIR)/src/couch_replicator/test/*.t
