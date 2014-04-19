@@ -79,7 +79,7 @@ $(BASE_DIR)/rebar:
 	@echo "==> build rebar"
 	@(cd $(BASE_DIR)/support/rebar && $(ESCRIPT) bootstrap)
 	@$(CP) $(BASE_DIR)/support/rebar/rebar $(BASE_DIR)/rebar
-	@$(CP) $(BASE_DIR)/support/rebar/rebar.cmd $(BASE_DIR)/rebar.cmd
+	@-$(CP) $(BASE_DIR)/support/rebar/rebar.cmd $(BASE_DIR)/rebar.cmd
 
 rebarclean:
 	@(cd $(BASE_DIR)/support/rebar && \
