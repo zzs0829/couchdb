@@ -2,10 +2,12 @@
 !.mailmap
 *.beam
 *.diff
+*.exe
 *.gz
 *.la
 *.lo
 *.o
+*.obj
 *.orig
 *.pyc
 *.rej
@@ -14,6 +16,7 @@
 *.tpl
 *~
 .*
+!.gitattributes
 INSTALL
 Makefile.in
 THANKS
@@ -28,6 +31,7 @@ support/rebar/rebar
 support/rebar/inttest/rt.work
 rt.work
 rebar
+rebar.cmd
 support/rebar/.test
 
 # couch_collate
@@ -64,3 +68,4 @@ test/etap/*.o
 test/etap/temp.*
 
 share/doc/build
+/log

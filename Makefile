@@ -1,15 +1,36 @@
-BASE_DIR = $(shell pwd)
+BASE_DIR=$(CURDIR)
 SUPPORT_DIR=$(BASE_DIR)/support
-ERLC ?= $(shell which erlc)
-ESCRIPT ?= $(shell which escript)
 OVERLAY_VARS ?=
 PACKAGE_NAME=apache-couchdb
 RELDIR=$(BASE_DIR)/rel/$(PACKAGE_NAME)
 
+ifeq ($(OS),Windows_NT)
+	ERLC ?= "$(shell where erlc)"
+	ESCRIPT ?= "$(shell where escript)"
+	PYTHON ?= "$(shell where python)"
+	CP=python $(SUPPORT_DIR)/cp.py
+	RM=python $(SUPPORT_DIR)/rm.py
+	MKDIR=python $(SUPPORT_DIR)/mkdir.py
+	CC=cl.exe
+	COUTFLAG ?= /Fe
+	CDEFINE ?= /D
+else
+	ERLC ?= "$(shell which erlc)"
+	ESCRIPT ?= "$(shell which escript)"
+	PYTHON ?= "$(shell which python)"
+	CP=cp -r
+	RM=rm -rf
+	MKDIR=mkdir -p
+	CC ?= cc
+	COUTFLAG ?= -o
+	CDEFINE ?= -D
+endif
 
 $(if $(ERLC),,$(warning "Warning: No Erlang found in your path, this will probably not work"))
 
 $(if $(ESCRIPT),,$(warning "Warning: No escript found in your path, this will probably not work"))
+
+$(if $(PYTHON),,$(warning "Warning: No python found in your path, this may not work, for Windows or for documentation builds"))
 
 .PHONY: rel deps rebar
 
@@ -44,7 +65,7 @@ generate:
 rel: generate
 
 relclean: reldocclean
-	@rm -rf rel/apache-couchdb
+	@$(RM) rel/apache-couchdb
 
 check: test testjs
 
@@ -52,16 +73,18 @@ check: test testjs
 # rebar
 #
 
-rebar:
-	@(test ! -e $(BASE_DIR)/support/rebar/rebar && \
-		echo "==> build rebar" && \
-		cd $(BASE_DIR)/support/rebar && \
-		$(ESCRIPT) bootstrap || true)
-	@cp $(BASE_DIR)/support/rebar/rebar $(BASE_DIR)/rebar
+rebar: $(BASE_DIR)/rebar
+
+$(BASE_DIR)/rebar:
+	@echo "==> build rebar"
+	@(cd $(BASE_DIR)/support/rebar && $(ESCRIPT) bootstrap)
+	@$(CP) $(BASE_DIR)/support/rebar/rebar $(BASE_DIR)/rebar
+	@$(CP) $(BASE_DIR)/support/rebar/rebar.cmd $(BASE_DIR)/rebar.cmd
 
 rebarclean:
 	@(cd $(BASE_DIR)/support/rebar && \
-		rm -rf rebar ebin/*.beam inttest/rt.work rt.work .test)
+		$(RM) rebar ebin/*.beam inttest/rt.work rt.work .test)
+	@$(RM) $(BASE_DIR)/rebar
 
 #
 # DOCS
@@ -75,38 +98,35 @@ SPHINXOPTS = -n -c $(DOC_SRCDIR) \
 			 $(DOC_SRCDIR)
 
 reldoc: reldocclean doc
-	mkdir -p $(DOC_RELDIR)
-	cp -r $(DOC_BUILDDIR)/html $(DOC_RELDIR)
-	cp -r $(DOC_BUILDDIR)/latex/CouchDB.pdf $(DOC_RELDIR)
-	cp -r $(DOC_BUILDDIR)/texinfo/CouchDB.info $(DOC_RELDIR)
+	$(MKDIR) $(DOC_RELDIR)
+	$(CP) $(DOC_BUILDDIR)/html $(DOC_RELDIR)
+	$(CP) $(DOC_BUILDDIR)/latex/CouchDB.pdf $(DOC_RELDIR)
+	$(CP) $(DOC_BUILDDIR)/texinfo/CouchDB.info $(DOC_RELDIR)
 
 doc: html pdf texinfo
 
 html:
-	@mkdir -p $(DOC_BUILDDIR)
+	@$(MKDIR) $(DOC_BUILDDIR)
 	$(SUPPORT_DIR)/doc/sphinx-build \
 		-b html $(SPHINXOPTS) $(DOC_BUILDDIR)/html
 
 pdf:
-	@mkdir -p $(DOC_BUILDDIR)
+	@$(MKDIR) $(DOC_BUILDDIR)
 	$(SUPPORT_DIR)/doc/sphinx-build \
 		-b latex $(SPHINXOPTS) $(DOC_BUILDDIR)/latex
 	$(MAKE) -C $(DOC_BUILDDIR)/latex all-pdf
 
 texinfo:
-	@mkdir -p $(DOC_BUILDDIR)
+	@$(MKDIR) $(DOC_BUILDDIR)
 	$(SUPPORT_DIR)/doc/sphinx-build \
 		-b texinfo $(SPHINXOPTS) $(DOC_BUILDDIR)/texinfo
 	$(MAKE) -C $(DOC_BUILDDIR)/texinfo info
 
 docclean:
-	rm -rf $(DOC_BUILDDIR)/textinfo
-	rm -rf $(DOC_BUILDDIR)/latex
-	rm -rf $(DOC_BUILDDIR)/html
-	rm -rf $(DOC_BUILDDIR)/doctrees
+	$(RM) $(DOC_BUILDDIR)
 
 reldocclean:
-	rm -rf $(DOC_RELDIR)
+	$(RM) $(DOC_RELDIR)
 
 #
 # TESTS
@@ -144,26 +164,26 @@ testjs: testbuild
 	@$(ESCRIPT) $(BASE_DIR)/test/javascript/test_js.escript
 
 testbuild: testclean
-	@echo "==> init test environement"
+	@echo "==> init test environment"
 	@$(ERLC) -v -o $(COUCHDB_ETAP_DIR) $(COUCHDB_ETAP_DIR)/etap.erl
 	@$(ERLC) -v -o $(COUCHDB_ETAP_DIR) $(COUCHDB_ETAP_DIR)/test_web.erl
 	@$(ERLC) -v -o $(COUCHDB_ETAP_DIR) $(COUCHDB_ETAP_DIR)/test_util.erl
 	@$(ERLC) -v -o $(COUCHDB_ETAP_DIR) $(COUCHDB_ETAP_DIR)/mustache.erl
-	@cc -DBSD_SOURCE $(COUCHDB_ETAP_DIR)/test_cfg_register.c \
-		-o $(COUCHDB_ETAP_DIR)/test_cfg_register
-	@mkdir -p $(BASE_DIR)/test/out/data
-	@mkdir -p $(BASE_DIR)/test/out/bin
-	@mkdir -p $(BASE_DIR)/test/out/share
-	@mkdir -p $(BASE_DIR)/test/out/log
-	@cp $(BASE_DIR)/src/couch/priv/couchjs $(BASE_DIR)/test/out/bin/
-	@cp -r $(BASE_DIR)/share/server $(BASE_DIR)/test/out/share
-	@cp -r $(BASE_DIR)/share/www $(BASE_DIR)/test/out/share
-	@cp $(BASE_DIR)/etc/couchdb/local.ini $(BASE_DIR)/test/out/
+	@$(CC) $(CDEFINE)BSD_SOURCE $(COUCHDB_ETAP_DIR)/test_cfg_register.c \
+		$(COUTFLAG)$(COUCHDB_ETAP_DIR)/test_cfg_register
+	@$(MKDIR) $(BASE_DIR)/test/out/data
+	@$(MKDIR) $(BASE_DIR)/test/out/bin
+	@$(MKDIR) $(BASE_DIR)/test/out/share
+	@$(MKDIR) $(BASE_DIR)/test/out/log
+	@$(CP) $(BASE_DIR)/src/couch/priv/couchjs $(BASE_DIR)/test/out/bin/
+	@$(CP) $(BASE_DIR)/share/server $(BASE_DIR)/test/out/share
+	@$(CP) $(BASE_DIR)/share/www $(BASE_DIR)/test/out/share
+	@$(CP) $(BASE_DIR)/etc/couchdb/local.ini $(BASE_DIR)/test/out/
 
 testclean:
-	@rm -rf $(COUCHDB_ETAP_DIR)/*.beam
-	@rm -rf $(BASE_DIR)/test/out
-	@rm -rf $(COUCHDB_ETAP_DIR)/test_cfg_register
-	@rm -rf $(COUCHDB_ETAP_DIR)/*.o
+	@$(RM) $(COUCHDB_ETAP_DIR)/*.beam
+	@$(RM) $(BASE_DIR)/test/out
+	@$(RM) $(COUCHDB_ETAP_DIR)/test_cfg_register
+	@$(RM) $(COUCHDB_ETAP_DIR)/*.o
 
 .PHONY: rebar
