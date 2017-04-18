@@ -657,6 +657,7 @@ doc_processor_test_() ->
 % Can't parse replication doc, so should write failure state to document.
 t_bad_change() ->
     ?_test(begin
+        ?debugFmt(" XXXXXXXXXXXXXXXXXXXXXXXXXXX ~p", [config:get("replicator","startup_jitter")]),
         ?assertEqual(acc, db_change(?DB, bad_change(), acc)),
         ?assert(updated_doc_with_failed_state())
     end).

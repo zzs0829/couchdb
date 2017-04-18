@@ -40,6 +40,7 @@ setup({A, B}) ->
     Ctx = test_util:start_couch([couch_replicator]),
     Source = setup(A),
     Target = setup(B),
+    ?debugFmt(" XXXXXXXXXXXXXXXXXXXXXXXXXXX ~p", [config:get("replicator","startup_jitter")]),
     {Ctx, {Source, Target}}.
 
 teardown({remote, DbName}) ->
