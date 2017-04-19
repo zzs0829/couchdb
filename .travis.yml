@@ -3,11 +3,19 @@ before_install:
    - sudo apt-get -y install libicu-dev libmozjs185-dev pkg-config help2man libcurl4-openssl-dev
    - sudo apt-get -y install libtool automake autoconf autoconf-archive
    - sudo apt-get -y install shunit2
-before_script: ./configure -c --disable-docs --disable-fauxton
+before_script:
+   - kerl list installations
+   - ./configure -c --disable-docs --disable-fauxton
 script:
    - make check
+after_failure: cat src/chttpd/.eunit/couch.log
 language: erlang
 otp_release:
+   - 19.2
+   - 19.1
+   - 19.0
+   - 18.3
+   - 18.2
    - 18.1
    - 18.0
    - 17.5
